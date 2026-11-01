@@ -1,21 +1,41 @@
-import { Feather, Flower2, Heart, MoonStar, Plane, type LucideIcon } from "lucide-react";
 import type { CardSize, Orientation } from "@/lib/types";
+
+export type StampCategory = "travel" | "love" | "birthday" | "nature" | "photo";
 
 export interface StampDef {
   id: string;
   name: string;
-  gradient: string;
-  icon: LucideIcon;
+  category: StampCategory;
+  art: string;
   value: string;
-  subtext: string;
+  country: string;
+  year: string;
+  paper: string;
+  ink: string;
 }
 
+export const STAMP_CATEGORIES: { value: StampCategory | "all"; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "travel", label: "Travel" },
+  { value: "love", label: "Love" },
+  { value: "birthday", label: "Birthday" },
+  { value: "nature", label: "Night & Nature" },
+  { value: "photo", label: "Your photo" },
+];
+
 export const STAMPS: StampDef[] = [
-  { id: "vintage_airmail", name: "Classic Airmail", gradient: "from-sky-700 to-indigo-900", icon: Plane, value: "25¢", subtext: "PAR AVION" },
-  { id: "botanical_flora", name: "Wild Botanica", gradient: "from-emerald-700 to-teal-900", icon: Flower2, value: "45¢", subtext: "FLORA" },
-  { id: "celestial_moon", name: "Midnight Luna", gradient: "from-amber-600 to-rose-900", icon: MoonStar, value: "50¢", subtext: "NIGHT POST" },
-  { id: "whimsical_dove", name: "Peace Carrier", gradient: "from-stone-600 to-stone-900", icon: Feather, value: "10¢", subtext: "FIRST CLASS" },
-  { id: "heart_seal", name: "Love Letter", gradient: "from-rose-600 to-pink-800", icon: Heart, value: "60¢", subtext: "WITH LOVE" },
+  { id: "vintage_airmail", name: "Par Avion", category: "travel", art: "plane", value: "25¢", country: "AIRMAIL", year: "1952", paper: "#E9F0F6", ink: "#2B4C6F" },
+  { id: "hot_air_balloon", name: "Up & Away", category: "travel", art: "balloon", value: "40¢", country: "SKYWARD", year: "1961", paper: "#FBF0DF", ink: "#8B3A22" },
+  { id: "lighthouse", name: "Harbour Light", category: "travel", art: "lighthouse", value: "55¢", country: "SEASIDE", year: "1948", paper: "#E4EAF1", ink: "#1E2F44" },
+  { id: "heart_seal", name: "With Love", category: "love", art: "envelope_heart", value: "60¢", country: "AMOUR", year: "1970", paper: "#FCEBEC", ink: "#8E2C3B" },
+  { id: "rose_bloom", name: "Garden Rose", category: "love", art: "rose", value: "35¢", country: "ROMANCE", year: "1966", paper: "#FDF3EC", ink: "#7A2433" },
+  { id: "birthday_cake", name: "Many Happy", category: "birthday", art: "cake", value: "50¢", country: "CELEBRATE", year: "1975", paper: "#F1ECF9", ink: "#4E3A7A" },
+  { id: "party_balloons", name: "Hip Hooray", category: "birthday", art: "party_balloons", value: "30¢", country: "PARTY", year: "1979", paper: "#FFF6E4", ink: "#8A5A12" },
+  { id: "celestial_moon", name: "Goodnight", category: "nature", art: "moon", value: "45¢", country: "NOCTURNE", year: "1958", paper: "#E7E9F2", ink: "#1F2A44" },
+  { id: "botanical_flora", name: "Wild Fern", category: "nature", art: "fern", value: "20¢", country: "BOTANICA", year: "1944", paper: "#EDF3EA", ink: "#2F5640" },
+  { id: "whimsical_dove", name: "Songbird", category: "nature", art: "bird", value: "10¢", country: "FIRST CLASS", year: "1950", paper: "#F7F0E4", ink: "#5C4033" },
+  { id: "fox_friend", name: "Little Fox", category: "nature", art: "fox", value: "15¢", country: "WOODLAND", year: "1963", paper: "#F0F4EC", ink: "#7A3A16" },
+  { id: "photo", name: "My Picture", category: "photo", art: "", value: "$1", country: "PERSONAL", year: "2026", paper: "#F6EFE4", ink: "#2C1810" },
 ];
 
 export const stampById = (id: string) => STAMPS.find((s) => s.id === id) ?? STAMPS[0];

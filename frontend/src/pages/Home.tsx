@@ -78,9 +78,9 @@ export default function Home() {
             </a>
           </div>
           <div className="mt-10 flex items-center gap-3">
-            {["vintage_airmail", "botanical_flora", "heart_seal"].map((s, i) => (
+            {["hot_air_balloon", "fox_friend", "heart_seal"].map((s, i) => (
               <div key={s} style={{ transform: `rotate(${(i - 1) * 8}deg)` }}>
-                <Stamp stampId={s} className="w-11" />
+                <Stamp stampId={s} className="w-12" interactive />
               </div>
             ))}
             <p className="ml-2 text-sm text-ink-muted">Free forever · no account needed to receive</p>

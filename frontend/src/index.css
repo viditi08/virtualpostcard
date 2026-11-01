@@ -190,5 +190,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .animate-marquee, .animate-float-slow, .animate-wiggle { animation: none; }
+    .animate-marquee, .animate-float-slow, .animate-wiggle, .stamp-foil { animation: none; }
 }
+
+/* Holographic foil: a soft iridescent sheen that sweeps across stamps now and then */
+@keyframes foil-sweep {
+    0%, 72% { background-position: 160% 0; }
+    100% { background-position: -60% 0; }
+}
+.stamp-foil {
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.55) 44%, rgba(255, 214, 150, 0.35) 50%, rgba(150, 210, 255, 0.3) 56%, transparent 68%);
+    background-size: 250% 100%;
+    background-position: 160% 0;
+    mix-blend-mode: soft-light;
+    animation: foil-sweep 7s ease-in-out infinite;
+}
+.stamp-foil-hover { animation: none; transition: background-position 0.9s ease; }
+.group\/stamp:hover .stamp-foil-hover { background-position: -60% 0; }

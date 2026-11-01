@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCw } from "lucide-react";
 import type { CardFace } from "@/lib/types";
 import { PostcardView } from "@/components/postcard/PostcardView";
+import { cardRatio } from "@/lib/postcard";
 import { Button } from "@/components/ui/button";
 
 type Stage = "sealed" | "opening" | "sliding" | "card";
@@ -149,7 +150,7 @@ export function EnvelopeTheater({ card, onOpened }: EnvelopeTheaterProps) {
                 ))}
               </div>
             )}
-            <div className={wide ? "w-[min(94vw,760px)]" : "w-[min(86vw,440px)]"}>
+            <div style={{ width: `min(${wide ? "94vw, 760px" : "86vw, 440px"}, ${(72 * cardRatio(card.size, card.orientation)).toFixed(1)}vh)` }}>
               <PostcardView card={card} flipped={flipped} onFlip={() => setFlipped((f) => !f)} testId="recipient-postcard" />
             </div>
             <Button

@@ -68,7 +68,7 @@ function Back({ card }: { card: CardFace }) {
       <div className="flex h-full flex-col gap-[4%] p-[7%]">
         <div className="flex items-start justify-between">
           <Postmark date={card.date_str.split("-").reverse().join(".")} className="w-[46%] -rotate-6" />
-          <Stamp stampId={card.stamp_id} className="w-[24%] rotate-3" />
+          <Stamp stampId={card.stamp_id} photoUrl={card.front_image_url} className="w-[24%] rotate-3" />
         </div>
         <div className="min-h-0 flex-1">{message}</div>
         <div className="border-t border-[#D6CEBF] pt-[4%]">{address}</div>
@@ -82,7 +82,7 @@ function Back({ card }: { card: CardFace }) {
       <div className="relative flex flex-col justify-between">
         <div className="flex items-start justify-end">
           <Postmark date={card.date_str.split("-").reverse().join(".")} className="absolute -left-[6%] top-[6%] w-[62%] -rotate-6" />
-          <Stamp stampId={card.stamp_id} className="w-[34%] rotate-3" />
+          <Stamp stampId={card.stamp_id} photoUrl={card.front_image_url} className="w-[34%] rotate-3" />
         </div>
         {address}
       </div>

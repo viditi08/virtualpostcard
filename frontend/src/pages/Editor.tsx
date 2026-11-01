@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Check, ImagePlus, Loader2, RotateCw, Save, Stamp as StampIcon } from "lucide-react";
 import { apiGet, apiPost, apiPut, apiUpload, errorMessage } from "@/lib/api";
 import type { CardFace, Design, Postcard, PostcardIn, TodayOut, UploadOut } from "@/lib/types";
-import { SEAL_COLORS, SIZES, STAMPS, cardRatio } from "@/lib/postcard";
+import { SEAL_COLORS, SIZES, STAMPS, STAMP_CATEGORIES, cardRatio, type StampCategory } from "@/lib/postcard";
 import { queryClient } from "@/lib/queryClient";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PostcardView } from "@/components/postcard/PostcardView";
@@ -61,6 +61,7 @@ function EditorForm({ initial, existing }: { initial: PostcardIn; existing?: Pos
   const location = useLocation();
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<PostcardIn>(initial);
+  const [stampCat, setStampCat] = useState<StampCategory | "all">("all");
   const [flipped, setFlipped] = useState(false);
   const [shareOpen, setShareOpen] = useState(Boolean((location.state as { share?: boolean } | null)?.share));
   const set = <K extends keyof PostcardIn>(k: K, v: PostcardIn[K]) => setForm((f) => ({ ...f, [k]: v }));
@@ -295,24 +296,45 @@ function EditorForm({ initial, existing }: { initial: PostcardIn; existing?: Pos
               <TabsContent value="stamp" className="mt-5 space-y-6">
                 <div>
                   <Label className="mb-3 block">Stamp</Label>
-                  <div className="grid grid-cols-5 gap-3">
-                    {STAMPS.map((s) => (
+                  <div className="mb-4 flex flex-wrap gap-1.5" data-testid="editor-stamp-categories">
+                    {STAMP_CATEGORIES.map((c) => (
+                      <button
+                        key={c.value}
+                        type="button"
+                        data-testid={`editor-stamp-category-${c.value}`}
+                        aria-pressed={stampCat === c.value}
+                        onClick={() => setStampCat(c.value)}
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-xs font-semibold transition-[background-color,color,border-color] duration-200",
+                          stampCat === c.value ? "border-terracotta bg-terracotta text-white" : "border-border bg-panel text-ink-muted hover:border-terracotta/50 hover:text-ink",
+                        )}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-4 gap-3 sm:grid-cols-5" data-testid="editor-stamp-grid">
+                    {STAMPS.filter((s) => stampCat === "all" || s.category === stampCat).map((s) => (
                       <button
                         key={s.id}
                         type="button"
                         data-testid={`editor-stamp-${s.id}`}
                         title={s.name}
+                        aria-pressed={form.stamp_id === s.id}
                         onClick={() => set("stamp_id", s.id)}
                         className={cn(
-                          "rounded-lg p-1.5 transition-[background-color,transform] duration-200 hover:-translate-y-1 hover:rotate-3",
-                          form.stamp_id === s.id ? "bg-[#FAF0E6] ring-2 ring-terracotta" : "",
+                          "rounded-lg p-1.5 transition-[background-color,box-shadow] duration-200",
+                          form.stamp_id === s.id ? "bg-[#FAF0E6] ring-2 ring-terracotta" : "hover:bg-[#FAF0E6]/60",
                         )}
                       >
-                        <Stamp stampId={s.id} />
+                        <Stamp stampId={s.id} photoUrl={form.front_image_url} interactive />
                       </button>
                     ))}
                   </div>
-                  <p className="mt-2 text-sm text-ink-muted">{STAMPS.find((s) => s.id === form.stamp_id)?.name}</p>
+                  <p className="mt-2 text-sm text-ink-muted" data-testid="editor-stamp-name">
+                    {STAMPS.find((s) => s.id === form.stamp_id)?.name}
+                    {form.stamp_id === "photo" && " — made from your card's front picture, vintage-tinted"}
+                  </p>
                 </div>
                 <div>
                   <Label className="mb-3 block">Wax seal colour</Label>
