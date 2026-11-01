@@ -1,0 +1,312 @@
+{
+  "theme": "light",
+  "archetype": "ARCHETYPE 1: ORGANIC & EARTHY mixed with Whimsical Vintage Ephemera (Soft Warm Linen, Terracotta, Postal Navy, Sage Botanical, Stamp Ink)",
+  "fonts": {
+    "heading_font": "Lora",
+    "body_font": "Plus Jakarta Sans",
+    "accent_mono": "IBM Plex Mono",
+    "import_statements": [
+      "@import \"@fontsource-variable/lora\";",
+      "@import \"@fontsource-variable/plus-jakarta-sans\";",
+      "@import \"@fontsource/ibm-plex-mono\";"
+    ],
+    "css_theme_vars": {
+      "--font-heading": "'Lora Variable', serif",
+      "--font-sans": "'Plus Jakarta Sans Variable', sans-serif",
+      "--font-mono": "'IBM Plex Mono', monospace"
+    }
+  },
+  "typography": {
+    "scale_px": {
+      "display": 56,
+      "h1": 44,
+      "h2": 32,
+      "h3": 24,
+      "body": 16,
+      "caption": 14
+    },
+    "rules": {
+      "display_classes": "font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-amber-950 dark:text-amber-100",
+      "h1_classes": "font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-amber-950 dark:text-amber-100",
+      "h2_classes": "font-serif text-2xl sm:text-3xl font-medium tracking-tight text-amber-900 dark:text-amber-200",
+      "h3_classes": "font-sans text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 dark:text-stone-100",
+      "body_classes": "font-sans text-base leading-relaxed text-stone-700 dark:text-stone-300",
+      "postcard_handwritten_classes": "font-serif italic text-lg leading-relaxed text-slate-800 tracking-wide",
+      "postmark_mono_classes": "font-mono uppercase text-xs tracking-[0.2em] text-stone-500"
+    }
+  },
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#FAF7F2",
+        "on_bg": "#2C1810",
+        "on_bg_muted": "#6E5E57"
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#FFFDF9",
+        "on_bg": "#2C1810",
+        "on_bg_muted": "#786860"
+      },
+      {
+        "name": "postcard_cardstock",
+        "kind": "solid",
+        "bg": "#FDFBF7",
+        "on_bg": "#1E1A17",
+        "on_bg_muted": "#5C524B",
+        "roles": {
+          "postal_divider": "#D6CEBF",
+          "stamp_perforation": "#A34832",
+          "postmark_stamp": "#2B4C6F"
+        }
+      },
+      {
+        "name": "envelope_outer",
+        "kind": "solid",
+        "bg": "#EFE6D8",
+        "on_bg": "#2A1F18",
+        "on_bg_muted": "#68584E"
+      },
+      {
+        "name": "envelope_interior",
+        "kind": "solid",
+        "bg": "#E2D5C3",
+        "on_bg": "#2A1F18",
+        "on_bg_muted": "#5A4C44"
+      },
+      {
+        "name": "wax_seal",
+        "kind": "solid",
+        "bg": "#B83A28",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#FEE2E2"
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#1C1714",
+        "on_bg": "#FDFCFA",
+        "on_bg_muted": "#C2B8AE"
+      },
+      {
+        "name": "hero",
+        "kind": "image",
+        "contrast_against": "#2C1810",
+        "guarantee": "scrim: linear-gradient(to right, rgba(250,247,242,0.95) 0%, rgba(250,247,242,0.85) 50%, rgba(250,247,242,0.4) 100%)",
+        "on_bg": "#2C1810",
+        "on_bg_muted": "#5F4D45",
+        "roles": {
+          "link": "#A34832",
+          "error": "#B91C1C",
+          "success": "#2D6A4F"
+        }
+      },
+      {
+        "name": "stamp_badge",
+        "kind": "solid",
+        "bg": "#FAF0E6",
+        "on_bg": "#8B3A22",
+        "on_bg_muted": "#A35C48"
+      }
+    ],
+    "accent": "#A34832",
+    "on_accent": "#FFFFFF",
+    "secondary_accent": "#2B4C6F",
+    "on_secondary_accent": "#FFFFFF",
+    "nature_green": "#3D6B52",
+    "vintage_gold": "#C8963E"
+  },
+  "entry_surfaces": {
+    "/": "whimsical split hero — warm vintage typography, live mini flipping card preview left, interactive stamp picker right",
+    "/login": "branded split auth — vintage postbox illustration & story left, clean email+Google signin panel right",
+    "/register": "branded split auth — vintage postbox illustration & story left, whimsical signup panel right",
+    "/app": "whimsical creator dashboard — postcard gallery with flip previews, sent stats, and floating 'Write New Postcard' CTA",
+    "/app/create": "two-column studio editor — canvas preview with live front/back flip left, customization dock (photo upload, illustrated templates, size/orientation, stamp, wax seal, recipient message) right",
+    "/p/:id": "theatrical recipient opening theater — centered interactive tactile envelope with wax seal tap-to-open, sliding card pull-out, and 3D flip card interaction with confetti burst"
+  },
+  "design_elements": {
+    "texture": "paper fiber subtle CSS grain, dashed vintage postal lines, scalloped stamp borders",
+    "shadows": {
+      "postcard": "0 10px 30px -5px rgba(44, 24, 16, 0.12), 0 4px 6px -2px rgba(44, 24, 16, 0.05)",
+      "envelope": "0 20px 40px -10px rgba(44, 24, 16, 0.18)",
+      "stamp": "0 2px 5px rgba(0,0,0,0.12)"
+    },
+    "stamp_perforations": "border-style: dashed or CSS radial-mask scalloped edges (mask-radial-gradient)",
+    "wax_seals": "curved crimson button with embossed monogram and soft glow"
+  },
+  "layouts": {
+    "hero_grid": "grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center",
+    "editor_grid": "grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 h-[calc(100vh-5rem)]",
+    "dashboard_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
+    "postcard_ratios": {
+      "standard_landscape": "aspect-[6/4] w-full max-w-xl",
+      "standard_portrait": "aspect-[4/6] w-full max-w-md",
+      "large_landscape": "aspect-[7/5] w-full max-w-2xl",
+      "large_portrait": "aspect-[5/7] w-full max-w-md",
+      "square": "aspect-square w-full max-w-lg"
+    }
+  },
+  "motion": {
+    "library": "motion (from 'motion/react')",
+    "envelope_open_sequence": [
+      "1. Flap unseals with wax seal crack animation (rotateX from 0deg to -180deg)",
+      "2. Z-index shifts and postcard translates Y upwards out of envelope with spring physics",
+      "3. Postcard scales to centered spotlight and enables 3D flip trigger"
+    ],
+    "flip_card_3d": {
+      "perspective": "perspective: 1200px",
+      "transformStyle": "preserve-3d",
+      "transition": "transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "backfaceVisibility": "hidden"
+    },
+    "hover_lift": "hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300"
+  },
+  "image_urls": [
+    {
+      "category": "postcard_template_landscape_nature",
+      "title": "Sunlit Mountain Pass & Winding Path",
+      "url": "https://images.unsplash.com/photo-1752316226410-16702ace22d8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHx3aGltc2ljYWwlMjB2aW50YWdlJTIwd2F0ZXJjb2xvciUyMGlsbHVzdHJhdGlvbiUyMGxhbmRzY2FwZXxlbnwwfHx8fDE3OTM1NjUxNDV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Dreamy watercolor hills with a peaceful winding path, perfect for wanderlust & travel postcards"
+    },
+    {
+      "category": "postcard_template_landscape_cozy_village",
+      "title": "Alpine Cottage & Stream",
+      "url": "https://images.unsplash.com/photo-1582201943021-e8e5cb6dedc2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHx3aGltc2ljYWwlMjB2aW50YWdlJTIwd2F0ZXJjb2xvciUyMGlsbHVzdHJhdGlvbiUyMGxhbmRzY2FwZXxlbnwwfHx8fDE3OTM1NjUxNDV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Serene watercolor painting of cozy cottages near mountains and trees"
+    },
+    {
+      "category": "postcard_template_whimsical_character",
+      "title": "Sir Whiskers Renaissance Cat",
+      "url": "https://images.pexels.com/photos/34713661/pexels-photo-34713661.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Charming watercolor painting of a cat dressed in a whimsical Renaissance outfit"
+    },
+    {
+      "category": "postcard_template_botanical_wildflower",
+      "title": "Meadow Wildflowers & Rose Hips",
+      "url": "https://images.unsplash.com/photo-1748715712911-a664965b6e9b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwzfHxjdXRlJTIwYm90YW5pY2FsJTIwZmxvcmFsJTIwaWxsdXN0cmF0aW9ufGVufDB8fHx8MTc5MzU2NTE0NXww&ixlib=rb-4.1.0&q=85",
+      "description": "Vintage illustrated botanical study of pastel wildflowers and blooming rose hips"
+    },
+    {
+      "category": "postcard_template_botanical_marigold",
+      "title": "Golden Marigold Watercolor",
+      "url": "https://images.unsplash.com/photo-1749752010054-ef6d3653926f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwxfHxjdXRlJTIwYm90YW5pY2FsJTIwZmxvcmFsJTIwaWxsdXN0cmF0aW9ufGVufDB8fHx8MTc5MzU2NTE0NXww&ixlib=rb-4.1.0&q=85",
+      "description": "Vibrant warm marigold floral illustration on antique ivory paper"
+    },
+    {
+      "category": "postcard_template_vintage_travel",
+      "title": "Vintage European Canal Cityscape",
+      "url": "https://images.unsplash.com/photo-1627660163746-fb13e616c117?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxjb3p5JTIwdHJhdmVsJTIwdmludGFnZSUyMHNjZW5lcnklMjBwb3N0Y2FyZCUyMGFydHxlbnwwfHx8fDE3OTM1NjUxNDV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Hand-painted architectural bridge & harbor watercolor on cedar table with fountain pen"
+    },
+    {
+      "category": "postcard_template_vintage_village",
+      "title": "Old Mountain Village at Dusk",
+      "url": "https://images.unsplash.com/photo-1761272407472-107b1bd9e6e7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwzfHxjb3p5JTIwdHJhdmVsJTIwdmludGFnZSUyMHNjZW5lcnklMjBwb3N0Y2FyZCUyMGFydHxlbnwwfHx8fDE3OTM1NjUxNDV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Nostalgic postcard print of illuminated hillside village"
+    },
+    {
+      "category": "hero_illustration_feature",
+      "title": "Curated Art Print Wall",
+      "url": "https://images.pexels.com/photos/8843986/pexels-photo-8843986.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Art gallery wall with eclectic postcard prints, botanical cards, and warm lighting"
+    }
+  ],
+  "stamps_collection": [
+    {
+      "id": "vintage_airmail",
+      "name": "Classic Airmail",
+      "color": "from-sky-700 to-indigo-900",
+      "icon": "Plane",
+      "value": "25¢",
+      "subtext": "PAR AVION"
+    },
+    {
+      "id": "botanical_flora",
+      "name": "Wild Botanica",
+      "color": "from-emerald-700 to-teal-900",
+      "icon": "Flower2",
+      "value": "45¢",
+      "subtext": "FLORA & FAUNA"
+    },
+    {
+      "id": "celestial_moon",
+      "name": "Midnight Luna",
+      "color": "from-amber-600 to-rose-900",
+      "icon": "MoonStar",
+      "value": "50¢",
+      "subtext": "NIGHT POST"
+    },
+    {
+      "id": "whimsical_dove",
+      "name": "Peace Carrier",
+      "color": "from-stone-700 to-stone-900",
+      "icon": "Feather",
+      "value": "10¢",
+      "subtext": "FIRST CLASS"
+    },
+    {
+      "id": "heart_seal",
+      "name": "Love Letter",
+      "color": "from-rose-600 to-pink-800",
+      "icon": "Heart",
+      "value": "60¢",
+      "subtext": "WITH LOVE"
+    }
+  ],
+  "accessibility": {
+    "contrast_compliance": "WCAG AA (4.5:1 minimum on all text, APCA high rating)",
+    "prefers_reduced_motion": "All 3D envelope and card flipping animations respect `useReducedMotion()` with instantaneous state switches",
+    "keyboard_navigation": "Cards flippable via Space/Enter key (`aria-label='Flip postcard to back'`, `tabIndex={0}`)",
+    "screen_readers": "Postcard front and back message content rendered with clear semantic tags and live region announcements"
+  },
+  "component_structure": {
+    "pages": [
+      {
+        "file": "frontend/src/pages/Home.tsx",
+        "description": "High-impact whimsical landing page with interactive hero, live flip card simulator, 3-step 'How It Works' (Design -> Seal & Send -> Envelope Opening), featured template gallery, and guest/instant try-now mode."
+      },
+      {
+        "file": "frontend/src/pages/Auth.tsx",
+        "description": "Branded dual Login/Register screen supporting Email+Password and Mocked One-Click Google Sign-In with instant session creation."
+      },
+      {
+        "file": "frontend/src/pages/Dashboard.tsx",
+        "description": "User's postal desk listing created postcards (Sent, Drafts), view recipient open statistics (opened time, recipient opened badge), copy shareable links, and quick-create button."
+      },
+      {
+        "file": "frontend/src/pages/PostcardEditor.tsx",
+        "description": "Full-featured studio editor: Upload own photo OR choose curated whimsical templates, select Orientation (Landscape/Portrait) and Size (Standard 6x4, Large 7x5, Square), write rich heartfelt message, choose stamp design, select wax seal color, live 3D front/back flip canvas, and one-click 'Seal & Generate Postcard' modal."
+      },
+      {
+        "file": "frontend/src/pages/PostcardRecipient.tsx",
+        "description": "Theatrical recipient experience at `/p/:id` or `/p/preview`. Renders paper envelope with personalized wax seal. Clicking wax seal runs flap-unfolding animation, pulls postcard upward out of envelope, activates 3D flip card with sound/visual delight (confetti / sparkle micro-particles), displays sender note, stamp, postmark stamp, and allows reply or making their own postcard."
+      }
+    ],
+    "interactive_components": [
+      "frontend/src/components/postcard/PostcardCanvas.tsx (3D flip card with authentic linen paper texture, divider, stamp, and photo side)",
+      "frontend/src/components/postcard/EnvelopeTheater.tsx (Interactive multi-stage envelope opening animation using Motion)",
+      "frontend/src/components/postcard/StampSelector.tsx (Whimsical philatelic stamp carousel with perforated borders)",
+      "frontend/src/components/postcard/PostmarkStamp.tsx (Authentic circular ink cancellation mark with recipient city/date)",
+      "frontend/src/components/postcard/ShareModal.tsx (Copy unique link, WhatsApp direct share, Email link, QR code, and open-tracking indicator)"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. Setup CSS fonts in `frontend/src/index.css`: import '@fontsource-variable/lora', '@fontsource-variable/plus-jakarta-sans', and '@fontsource/ibm-plex-mono'. Update `@theme inline` aliases for `--font-sans`, `--font-heading`, `--font-mono`.",
+    "2. Implement backend models and routes in FastAPI (`backend/server.py` or `backend/routers/postcards.py`): Postcard model (id, title, sender_name, recipient_name, recipient_email, orientation, size, front_image_url, message, stamp_id, wax_seal_color, date_str, is_draft, opened_count, opened_at, created_at, owner_id). Auth routes for login/register + Google mock login.",
+    "3. Seed default whimsical postcards and templates into Mongo via `backend/seed.py` so the dashboard and gallery immediately feel inhabited and magical.",
+    "4. Postcard Flip 3D: Use Tailwind utility classes for 3D flip (`perspective-[1200px]`, `transform-style-3d`, `rotate-y-180`, `backface-hidden`). Provide a visible button ('Flip to Back / Flip to Front') alongside clicking the card directly.",
+    "5. Recipient Envelope Opening flow: Stage 0 (Closed envelope with wax seal 'Tap to Open') -> Stage 1 (Wax seal snaps, envelope top flap flips upward) -> Stage 2 (Postcard slides up smoothly from inside pocket) -> Stage 3 (Postcard expands to full spotlight, prompt says 'Click card to flip'). When opened on `/p/:id`, call `POST /api/postcards/:id/open` to record opened time for sender tracking.",
+    "6. Free & No Payment friction: Postcards are generated instantly with a unique share URL `/p/<unique-id>`. Provide quick actions to Copy Link, Share via WhatsApp, or Preview as Recipient.",
+    "7. Mocking Highlight: Highlight that Google OAuth sign-in is MOCKED with realistic user profiles ('Alex Rivera', 'Jane Doe') for instant testing without requiring external Google API credentials.",
+    "8. Testing attributes: Ensure all buttons, links, inputs, stamps, and flip triggers have `data-testid` (e.g. `data-testid='flip-card-button'`, `data-testid='wax-seal-button'`, `data-testid='create-postcard-btn'`)."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "No generic AI-slop layout: Use warm paper tones (#FAF7F2, #FFFDF9), tactile shadows, perforated edges, and vintage typography.",
+    "Every button and interaction must have responsive feedback, hover lift, active press states, and sound/visual polish.",
+    "Use generous padding (p-6, p-8, p-12) to make postcard creating feel relaxing and artisanal.",
+    "Do not use transparent dropdown or modal backgrounds — ensure solid opaque glass or warm cream backgrounds with borders."
+  ]
+}
