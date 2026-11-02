@@ -34,6 +34,8 @@ dist
 
 *token.json*
 *credentials.json*
+**/.env
+**/.env.*
 
 # Logs and debug files
 npm-debug.log*
@@ -84,5 +86,5 @@ android-sdk/
 # Testing workspace artifacts
 /tests/test-results/
 
-# overlay black-box crash/user-report dumps — session data, never history
-**/.emergent/recordings/
+# Local platform-generated workspace files
+.emergent/

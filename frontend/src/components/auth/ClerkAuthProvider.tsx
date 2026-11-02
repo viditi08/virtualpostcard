@@ -60,7 +60,7 @@ export default function ClerkAuthProvider({ children }: { children: React.ReactN
   }, []);
 
   if (unavailable) return <p style={{ padding: 24 }}>Sign-in is unavailable right now. Refresh the page to try again.</p>;
-  if (!config) return null;
+  if (!config) return <p style={{ padding: 24 }}>Loading Whimsy Post...</p>;
   return (
     <ClerkProvider
       publishableKey={config.publishable_key}

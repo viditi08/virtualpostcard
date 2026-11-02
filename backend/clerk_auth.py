@@ -1,4 +1,4 @@
-"""Emergent-managed Clerk auth, inert until CLERK_PUBLISHABLE_KEY/CLERK_SECRET_KEY
+"""Clerk auth, inert until CLERK_PUBLISHABLE_KEY/CLERK_SECRET_KEY
 are set: /api/clerk/config for the frontend, the /api/__clerk production relay
 (zero DNS per app), and the require_user dependency for protected routes."""
 
@@ -103,7 +103,7 @@ def _jwks_client(secret_key: str) -> jwt.PyJWKClient:
     return jwt.PyJWKClient(
         f"{CLERK_BACKEND_API}/jwks",
         # Clerk's edge rejects urllib's default User-Agent (Cloudflare 1010).
-        headers={"Authorization": f"Bearer {secret_key}", "User-Agent": "emergent-clerk-auth"},
+        headers={"Authorization": f"Bearer {secret_key}", "User-Agent": "postcard-studio"},
         lifespan=3600,
         timeout=10,
     )

@@ -70,4 +70,4 @@ export function formatCardDate(iso: string): string {
 export const shareUrl = (shareId: string) => `${window.location.origin}/p/${shareId}`;
 
 export const HERO_IMAGE =
-  "https://static.prod-images.emergentagent.com/jobs/9e227aa6-9eba-4a34-8d31-e08b4140123f/images/43444362d659995b8ca4e9a9bd9cf46e6633165034d2aa5b4680141efe072e10.jpeg";
+  "/hero-image.jpeg";

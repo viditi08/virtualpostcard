@@ -17,20 +17,19 @@ from models.postcard import (
 
 router = APIRouter()
 
-_IMG = "https://static.prod-images.emergentagent.com/jobs/9e227aa6-9eba-4a34-8d31-e08b4140123f/images/"
 DESIGNS: List[Design] = [
     Design(id="balloons", title="Balloons over the valley", orientation="landscape",
-           url=_IMG + "43444362d659995b8ca4e9a9bd9cf46e6633165034d2aa5b4680141efe072e10.jpeg"),
+        url="/designs/balloons.jpeg"),
     Design(id="lighthouse", title="Seaside lighthouse", orientation="landscape",
-           url=_IMG + "ae89b4ef7f6f2dc542cb6a80d13e07986a7dd5b53d45e867448ad7e904f18f82.jpeg"),
+        url="/designs/lighthouse.jpeg"),
     Design(id="fox", title="Fox & the letter", orientation="portrait",
-           url=_IMG + "e099e583744fc08c505defab66534b154b3ea628e30e547c44e00d19f1df49d3.jpeg"),
+        url="/designs/fox.jpeg"),
     Design(id="cake", title="Birthday cake", orientation="portrait",
-           url=_IMG + "f3535518f2c87a719cbebb5b0ab497f8c0066d002e0c9aefcd6bc95d7eef537a.jpeg"),
+        url="/designs/cake.jpeg"),
     Design(id="moon", title="Moonlit cottage", orientation="landscape",
-           url=_IMG + "e43e55db147861d1ffec250ce1dbcab7d4236e49542d9de7594333610881f012.jpeg"),
+        url="/designs/moon.jpeg"),
     Design(id="bicycle", title="Café bicycle", orientation="landscape",
-           url=_IMG + "9db8d471760dbd3dc16305216569c599e21c26dc0a62b3bc0d7b9c51006a9b5f.jpeg"),
+        url="/designs/bicycle.jpeg"),
 ]
 
 MAX_UPLOAD = 8 * 1024 * 1024
@@ -52,7 +51,7 @@ def _to_postcard(doc: dict) -> Postcard:
 def _fetch_clerk_profile(user_id: str) -> dict:
     r = requests.get(
         f"https://api.clerk.com/v1/users/{user_id}", timeout=10,
-        headers={"Authorization": f"Bearer {os.environ['CLERK_SECRET_KEY']}", "User-Agent": "whimsy-post"},
+        headers={"Authorization": f"Bearer {os.environ['CLERK_SECRET_KEY']}", "User-Agent": "postcard-studio"},
     )
     r.raise_for_status()
     u = r.json()

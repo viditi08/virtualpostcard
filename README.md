@@ -170,8 +170,8 @@ not apply to it.
 
 ## Pod conventions
 
-This template runs under supervisord in the Emergent agent pod — supersedes any
-local-run instructions above.
+For local development, run the backend and frontend as separate processes using
+the commands above.
 
 - Backend, frontend, and `mongod` are each a supervisor program. After code or
   config changes, restart and wait for readiness:
