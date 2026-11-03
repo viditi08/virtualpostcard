@@ -9,6 +9,21 @@ Sign-in uses [Clerk](https://clerk.com) when `CLERK_PUBLISHABLE_KEY` and
 keeps a local desk account (email + password in Mongo) so you can still create
 and open postcards. Add the Clerk keys and restart the backend to switch.
 
+## Preview without extra installs
+
+If Node, MongoDB, and the Python packages are not installed yet, the studio
+still runs from the standard library. It uses the illustrated designs in
+`frontend/public` and keeps accounts and postcards in a local JSON file:
+
+```bash
+python3 preview/server.py
+# http://127.0.0.1:43123
+```
+
+Sign-in on that preview is a desk account (email and password). The FastAPI
+app below is the full studio: it uses Clerk when both Clerk keys are set in
+`backend/.env`, and the same kind of desk account when they are not.
+
 ## Running locally
 
 MongoDB must be listening on `localhost:27017`. Then, from the repo root:

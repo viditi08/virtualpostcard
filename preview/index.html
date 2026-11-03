@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Whimsy Post</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,560;0,650;1,560&family=Plus+Jakarta+Sans:wght@420;520;650&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #FAF7F2;
+      --panel: #FFFDF9;
+      --ink: #2C1810;
+      --muted: #6E5E57;
+      --terra: #A34832;
+      --terra-deep: #7d3424;
+      --postal: #2B4C6F;
+      --sage: #3D6B52;
+      --gold: #C8963E;
+      --envelope: #EFE6D8;
+      --envelope-in: #E2D5C3;
+      --line: #E5DBCB;
+      --card: #FDFBF7;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(200,150,62,.16), transparent 28%),
+        radial-gradient(circle at 90% 0%, rgba(163,72,50,.08), transparent 24%),
+        var(--paper);
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select { font: inherit; color: inherit; }
+    .serif { font-family: Lora, Georgia, serif; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    header.bar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      height: 64px; padding: 0 20px;
+      background: rgba(250,247,242,.88); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(229,219,203,.8);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 650; }
+    .logo-mark {
+      width: 36px; height: 36px; border-radius: 999px; display: grid; place-items: center;
+      background: var(--terra); color: white; box-shadow: 0 3px 0 var(--terra-deep);
+    }
+    .nav { display: flex; align-items: center; gap: 8px; }
+    .btn {
+      border: 0; cursor: pointer; border-radius: 999px; padding: 8px 14px;
+      background: transparent; font-weight: 600;
+    }
+    .btn.solid { background: var(--terra); color: white; box-shadow: 0 3px 0 var(--terra-deep); }
+    .btn.solid:active { transform: translateY(1px); box-shadow: 0 2px 0 var(--terra-deep); }
+    .btn.ghost:hover { background: #F4E6D6; }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    .hero { display: grid; grid-template-columns: 1fr; gap: 36px; padding: 48px 0 28px; align-items: center; }
+    @media (min-width: 900px) { .hero { grid-template-columns: 1fr 1.05fr; padding-top: 72px; } }
+    .eyebrow {
+      display: inline-flex; gap: 8px; align-items: center;
+      border: 1px solid rgba(163,72,50,.25); background: #FAF0E6;
+      border-radius: 999px; padding: 4px 10px; letter-spacing: .18em;
+      text-transform: uppercase; font-size: 11px; color: var(--terra);
+    }
+    h1 { font-size: clamp(42px, 6vw, 64px); line-height: 1.05; margin: 14px 0; letter-spacing: -.03em; }
+    h1 em { color: var(--terra); font-style: italic; }
+    .lede { font-size: 18px; line-height: 1.55; color: var(--muted); max-width: 440px; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 22px; }
+    .card-stage { display: grid; place-items: center; }
+    .flip {
+      width: min(100%, 460px); aspect-ratio: 1.5; perspective: 1400px; cursor: pointer;
+    }
+    .flip-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .8s cubic-bezier(.34,1.4,.64,1); }
+    .flip.flipped .flip-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute; inset: 0; border-radius: 3px; overflow: hidden; background: var(--card);
+      backface-visibility: hidden; border: 7px solid var(--card);
+      box-shadow: 0 18px 40px -12px rgba(44,24,16,.28);
+    }
+    .face.back { transform: rotateY(180deg); border-width: 0; padding: 22px; display: grid; grid-template-columns: 1.1fr 1px 1fr; gap: 14px; }
+    .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .msg { font-family: Lora, Georgia, serif; font-style: italic; line-height: 1.45; white-space: pre-wrap; overflow: hidden; }
+    .rule { background: #D6CEBF; }
+    .addr { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; font-size: 14px; }
+    .addr div { border-bottom: 1px dashed #D6CEBF; padding-bottom: 4px; }
+    .stamp {
+      width: 74px; height: 88px; margin-left: auto; border: 2px dashed currentColor; padding: 4px;
+      display: grid; place-items: center; text-align: center; transform: rotate(4deg);
+      font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    }
+    section { padding: 28px 0 56px; }
+    .steps { display: grid; gap: 14px; }
+    @media (min-width: 800px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+    .step, .tile, .panel {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px;
+    }
+    .marquee { display: flex; gap: 12px; overflow: hidden; }
+    .marquee img { width: 180px; height: 120px; object-fit: cover; border-radius: 8px; border: 6px solid var(--card); }
+    .faq details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+    .faq summary { cursor: pointer; font-weight: 650; }
+    .auth {
+      min-height: calc(100vh - 64px); display: grid;
+    }
+    @media (min-width: 900px) { .auth { grid-template-columns: 1fr 1fr; } }
+    .auth aside {
+      display: none; background: var(--ink); color: #FDFCFA; padding: 40px;
+    }
+    @media (min-width: 900px) { .auth aside { display: flex; flex-direction: column; justify-content: space-between; } }
+    .auth main { display: grid; place-items: center; padding: 32px 16px; }
+    form.desk { width: min(100%, 380px); display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+    input, textarea, select {
+      width: 100%; border: 1px solid #DCCFBC; background: white; border-radius: 12px; padding: 10px 12px;
+    }
+    textarea { min-height: 140px; resize: vertical; }
+    .error { color: #B91C1C; font-size: 14px; margin: 0; }
+    .desk-grid { display: grid; gap: 16px; padding: 28px 0 60px; }
+    @media (min-width: 800px) { .desk-grid.cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1100px) { .desk-grid.cards { grid-template-columns: repeat(3, 1fr); } }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat { background: #F4E6D6; border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+    .thumb { height: 180px; display: grid; place-items: center; background: #F3ECE1; border-radius: 12px; overflow: hidden; }
+    .thumb img { width: 78%; height: 130px; object-fit: cover; border: 6px solid var(--card); }
+    .badge { border-radius: 999px; padding: 3px 8px; font-size: 12px; color: white; }
+    .editor { display: grid; gap: 22px; padding: 24px 0 70px; }
+    @media (min-width: 980px) { .editor { grid-template-columns: 1.1fr .9fr; align-items: start; } }
+    .designs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .designs button { padding: 0; border-radius: 10px; border: 2px solid transparent; background: none; cursor: pointer; overflow: hidden; }
+    .designs button.selected { border-color: var(--ink); }
+    .designs img { width: 100%; height: 72px; object-fit: cover; display: block; }
+    .stamps { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stamps button { width: 72px; height: 86px; }
+    .stamps button.selected { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .seals { display: flex; gap: 8px; }
+    .seals button { width: 28px; height: 28px; border-radius: 999px; border: 0; cursor: pointer; box-shadow: inset 0 -3px 5px rgba(0,0,0,.25); }
+    .seals button.selected { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .preview-sticky { position: sticky; top: 84px; }
+    .share {
+      position: fixed; inset: 0; background: rgba(44,24,16,.35); display: grid; place-items: center; padding: 16px; z-index: 30;
+    }
+    .share .panel { width: min(460px, 100%); }
+    .linkbox { word-break: break-all; background: #F4E6D6; border-radius: 10px; padding: 10px; font-size: 14px; }
+    .envelope-page { min-height: calc(100vh - 64px); display: grid; place-items: center; padding: 40px 16px 80px; }
+    .envelope { width: min(92vw, 560px); aspect-ratio: 3/2; position: relative; cursor: pointer; }
+    .env-back, .pocket, .flap { position: absolute; inset: 0; border-radius: 6px; }
+    .env-back { background: var(--envelope-in); box-shadow: 0 24px 50px -14px rgba(44,24,16,.35); }
+    .letter {
+      position: absolute; left: 7%; right: 7%; top: 8%; bottom: 8%; z-index: 2;
+      border: 6px solid var(--card); background: var(--card); overflow: hidden;
+      transition: transform .8s cubic-bezier(.2,.8,.2,1);
+    }
+    .letter img { width: 100%; height: 100%; object-fit: cover; }
+    .letter.out { transform: translateY(-58%); }
+    .pocket { background: var(--envelope); z-index: 3; clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%); }
+    .flap {
+      background: #E7DCCB; z-index: 4; clip-path: polygon(0 0, 100% 0, 50% 62%);
+      transform-origin: top center; transition: transform .7s ease;
+    }
+    .flap.open { transform: rotateX(180deg); }
+    .wax {
+      position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
+      width: 74px; height: 74px; border-radius: 999px; z-index: 5;
+      display: grid; place-items: center; color: white; font-family: Lora, Georgia, serif;
+      box-shadow: inset 0 -6px 10px rgba(0,0,0,.25), 0 8px 16px rgba(44,24,16,.2);
+    }
+    .who { position: absolute; left: 8%; bottom: 12%; z-index: 4; }
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+    .confetti i {
+      position: absolute; top: -20px; width: 8px; height: 14px; animation: fall 1.4s ease-in forwards;
+    }
+    @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: .2; } }
+    .hidden { display: none !important; }
+    .empty { text-align: center; padding: 48px 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <a class="logo" href="/" data-testid="header-logo-link">
+      <span class="logo-mark" aria-hidden="true">✉</span>
+      <span class="serif" style="font-size:20px">Whimsy<span style="color:var(--terra);font-style:italic">Post</span></span>
+    </a>
+    <nav class="nav" id="nav"></nav>
+  </header>
+  <main id="app"></main>
+  <script>
+    const STAMPS = [
+      ["vintage_airmail", "Par Avion", "#E9F0F6", "#2B4C6F"],
+      ["hot_air_balloon", "Up & Away", "#FBF0DF", "#8B3A22"],
+      ["lighthouse", "Harbour Light", "#E4EAF1", "#1E2F44"],
+      ["heart_seal", "With Love", "#FCEBEC", "#8E2C3B"],
+      ["rose_bloom", "Garden Rose", "#FDF3EC", "#7A2433"],
+      ["birthday_cake", "Many Happy", "#F1ECF9", "#4E3A7A"],
+      ["party_balloons", "Hip Hooray", "#FFF6E4", "#8A5A12"],
+      ["celestial_moon", "Goodnight", "#E7E9F2", "#1F2A44"],
+      ["botanical_flora", "Wild Fern", "#EDF3EA", "#2F5640"],
+      ["whimsical_dove", "Songbird", "#F7F0E4", "#5C4033"],
+      ["fox_friend", "Little Fox", "#F0F4EC", "#7A3A16"],
+      ["photo", "My Picture", "#F6EFE4", "#2C1810"],
+    ];
+    const SEALS = ["#B83A28", "#2B4C6F", "#3D6B52", "#C8963E", "#6B3A6E"];
+    const TOKEN_KEY = "whimsy_desk_token";
+    const state = { user: null, designs: [], route: location.pathname };
+
+    const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    const token = () => localStorage.getItem(TOKEN_KEY);
+    const stampOf = (id) => STAMPS.find((stamp) => stamp[0] === id) || STAMPS[0];
+
+    async function api(path, options = {}) {
+      const headers = { ...(options.headers || {}) };
+      if (token()) headers.Authorization = `Bearer ${token()}`;
+      if (options.json !== undefined) headers["Content-Type"] = "application/json";
+      const response = await fetch(path, {
+        method: options.method || "GET",
+        headers,
+        body: options.json !== undefined ? JSON.stringify(options.json) : options.body,
+      });
+      if (response.status === 204) return null;
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        const error = new Error((data && data.detail) || "Something went wrong");
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    function go(path) {
+      history.pushState({}, "", path);
+      render();
+    }
+
+    function stampHtml(id) {
+      const stamp = stampOf(id);
+      return `<div class="stamp" style="background:${stamp[2]};color:${stamp[3]}">${esc(stamp[1])}</div>`;
+    }
+
+    function cardHtml(card, extra = "") {
+      const ratio = card.size === "square" ? "1" : card.orientation === "portrait" ? "0.7" : "1.5";
+      return `<div class="flip ${extra}" style="aspect-ratio:${ratio}" data-flip>
+        <div class="flip-inner">
+          <div class="face"><img src="${esc(card.front_image_url)}" alt="Postcard front"></div>
+          <div class="face back">
+            <p class="msg">${esc(card.message || "Your message will appear here, written in your very best hand…")}</p>
+            <div class="rule"></div>
+            <div>
+              ${stampHtml(card.stamp_id)}
+              <div class="addr">
+                <div><span class="mono" style="font-size:11px">TO </span><span class="serif" style="font-style:italic">${esc(card.recipient_name || "Someone dear")}</span></div>
+                <div><span class="mono" style="font-size:11px">FROM </span><span class="serif" style="font-style:italic">${esc(card.sender_name || "You")}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function nav() {
+      const host = document.getElementById("nav");
+      if (!state.user) {
+        host.innerHTML = `<a class="btn ghost" href="/sign-in" data-testid="header-sign-in-link">Sign in</a>
+          <a class="btn solid" href="/sign-up" data-testid="header-start-free-button">Start free</a>`;
+        return;
+      }
+      const first = esc((state.user.name || "").split(" ")[0]);
+      host.innerHTML = `<a class="btn ghost" href="/app" data-testid="header-dashboard-link">My postcards</a>
+        <a class="btn solid" href="/app/new" data-testid="header-new-postcard-button">New postcard</a>
+        <span>${first}</span>
+        <button class="btn ghost" id="signout" data-testid="header-sign-out-button" type="button">Sign out</button>`;
+      document.getElementById("signout").onclick = () => {
+        localStorage.removeItem(TOKEN_KEY);
+        state.user = null;
+        go("/");
+      };
+    }
+
+    async function pageHome() {
+      if (!state.designs.length) state.designs = await api("/api/designs");
+      const strip = [...state.designs, ...state.designs].map((design) => `<img src="${esc(design.url)}" alt="${esc(design.title)}">`).join("");
+      return `<div class="wrap">
+        <section class="hero">
+          <div>
+            <p class="eyebrow mono"><span style="width:6px;height:6px;border-radius:99px;background:var(--terra)"></span> for every little moment</p>
+            <h1 class="serif" data-testid="hero-title">Send a card that feels like <em>real mail.</em></h1>
+            <p class="lede">Design a whimsical postcard from your own photo or our illustrations, then share a private link that opens from a paper envelope — right in their browser.</p>
+            <div class="row">
+              <a class="btn solid" href="/sign-up" data-testid="hero-cta-start-button">Send your first card free</a>
+              <a href="#how" data-testid="hero-how-link" style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(163,72,50,.4)">How it works</a>
+            </div>
+          </div>
+          <div class="card-stage">${cardHtml({
+            front_image_url: "/hero-image.jpeg", orientation: "landscape", size: "standard",
+            message: "Greetings from the valley! We floated over the hills at sunrise and I swear the whole village waved. Wish you were here — big hug!",
+            recipient_name: "Alex", sender_name: "Sam", stamp_id: "vintage_airmail"
+          })}</div>
+        </section>
+        <section id="how">
+          <h2 class="serif" style="font-size:36px">Three folds, then it's theirs.</h2>
+          <div class="steps">
+            <article class="step"><h3 class="serif">Design it</h3><p>Pick an illustration or upload your own photo. Landscape, portrait, standard, large, or square.</p></article>
+            <article class="step"><h3 class="serif">Seal & send</h3><p>Write your note, choose a stamp, press the wax. Share a private link anywhere.</p></article>
+            <article class="step"><h3 class="serif">They open it</h3><p>An envelope lands on their screen. The flap lifts, the card slides out, and you see that it was opened.</p></article>
+          </div>
+        </section>
+        <section>
+          <h2 class="serif">Illustrated designs</h2>
+          <div class="marquee">${strip}</div>
+        </section>
+        <section class="faq">
+          <h2 class="serif">Questions from the sorting office</h2>
+          <details open><summary>Is it really free?</summary><p>Yes. Create and send as many postcards as you like.</p></details>
+          <details><summary>Does the recipient need an account?</summary><p>No. Anyone with the link can open the envelope.</p></details>
+          <details><summary>Can I see if it was opened?</summary><p>Every sent card on your desk shows how many times it was opened.</p></details>
+        </section>
+      </div>`;
+    }
+
+    function pageAuth(mode) {
+      const title = mode === "sign-in" ? "Sign in" : "Create your desk";
+      const blurb = mode === "sign-in"
+        ? "Pick up the postcards you have already sealed."
+        : "Your account lives with this studio. No Clerk keys are required.";
+      return `<div class="auth">
+        <aside>
+          <a class="logo" href="/"><span class="logo-mark">✉</span><span class="serif" style="font-size:22px">WhimsyPost</span></a>
+          <img src="/hero-image.jpeg" alt="Illustrated postcard of balloons over a valley" style="width:min(100%,420px);border:8px solid #FDFBF7;transform:rotate(-3deg)">
+          <h2 class="serif" style="font-size:40px;font-style:italic">${mode === "sign-in" ? "Welcome back to your postal desk." : "Your first postcard is waiting."}</h2>
+        </aside>
+        <main>
+          <form class="desk" data-testid="${mode}-panel">
+            <div>
+              <h1 class="serif" style="font-size:36px;margin:0">${title}</h1>
+              <p style="color:var(--muted)">${blurb}</p>
+            </div>
+            ${mode === "sign-up" ? `<label>Your name<input name="name" autocomplete="name" placeholder="Sam Rivera"></label>` : ""}
+            <label>Email<input name="email" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+            <label>Password<input name="password" type="password" required minlength="${mode === "sign-up" ? 8 : 1}" placeholder="${mode === "sign-up" ? "At least 8 characters" : "Your password"}"></label>
+            <p class="error hidden" role="alert"></p>
+            <button class="btn solid" type="submit">${mode === "sign-in" ? "Sign in" : "Create account"}</button>
+            <p style="text-align:center;color:var(--muted)">${mode === "sign-in"
+              ? `New here? <a href="/sign-up" style="color:var(--terra);font-weight:700">Start free</a>`
+              : `Already have a desk? <a href="/sign-in" style="color:var(--terra);font-weight:700">Sign in</a>`}</p>
+          </form>
+        </main>
+      </div>`;
+    }
+
+    function bindAuth(mode) {
+      const form = document.querySelector("form.desk");
+      form.onsubmit = async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(form));
+        const error = form.querySelector(".error");
+        error.classList.add("hidden");
+        try {
+          const result = await api(mode === "sign-up" ? "/api/auth/signup" : "/api/auth/login", { method: "POST", json: data });
+          localStorage.setItem(TOKEN_KEY, result.token);
+          state.user = { name: result.user.name, email: result.user.email, user_id: result.user.user_id };
+          go("/app");
+        } catch (err) {
+          error.textContent = err.message;
+          error.classList.remove("hidden");
+        }
+      };
+    }
+
+    async function pageDesk() {
+      const [me, cards] = await Promise.all([api("/api/me"), api("/api/postcards")]);
+      state.user = me;
+      const sent = cards.filter((card) => !card.is_draft).length;
+      const opened = cards.reduce((sum, card) => sum + (card.opened_count || 0), 0);
+      const tiles = cards.length ? cards.map((card) => {
+        const badge = card.is_draft
+          ? `<span class="badge" style="background:#6E5E57">Draft</span>`
+          : card.opened_count > 0
+            ? `<span class="badge" style="background:var(--sage)">Opened ${card.opened_count}×</span>`
+            : `<span class="badge" style="background:var(--postal)">Sent</span>`;
+        return `<article class="tile" data-testid="postcard-tile-${esc(card.id)}">
+          <a class="thumb" href="/app/edit/${esc(card.id)}"><img src="${esc(card.front_image_url)}" alt=""></a>
+          <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px">
+            <div><h3 class="serif" style="margin:0">${esc(card.title)}</h3>
+            <p style="margin:4px 0;color:var(--muted)">${card.recipient_name ? `To ${esc(card.recipient_name)}` : "No recipient yet"}</p></div>
+            ${badge}
+          </div>
+          <div class="row">
+            <a class="btn ghost" href="/app/edit/${esc(card.id)}">Edit</a>
+            ${card.is_draft ? "" : `<button class="btn ghost" data-copy="${esc(card.share_id)}" type="button">Copy link</button>`}
+            <button class="btn ghost" data-delete="${esc(card.id)}" type="button">Delete</button>
+          </div>
+        </article>`;
+      }).join("") : `<div class="empty panel"><h2 class="serif">Your desk is clear.</h2><p>The first card is the hardest stamp to lick.</p><a class="btn solid" href="/app/new">New postcard</a></div>`;
+      return `<div class="wrap">
+        <div style="padding-top:28px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:end">
+          <div>
+            <h1 class="serif" style="margin:0">Hello, ${esc((me.name || "friend").split(" ")[0])}.</h1>
+            <div class="stats" style="margin-top:10px"><span class="stat">${cards.length} total</span><span class="stat">${sent} sent</span><span class="stat">${opened} opens</span></div>
+          </div>
+          <input id="search" placeholder="Search postcards" style="max-width:260px">
+        </div>
+        <div class="desk-grid cards" id="tiles">${tiles}</div>
+      </div>`;
+    }
+
+    function bindDesk() {
+      const search = document.getElementById("search");
+      if (search) search.oninput = () => {
+        const query = search.value.toLowerCase();
+        document.querySelectorAll("#tiles article").forEach((tile) => {
+          tile.classList.toggle("hidden", query && !tile.textContent.toLowerCase().includes(query));
+        });
+      };
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.onclick = async () => {
+          const link = `${location.origin}/p/${button.dataset.copy}`;
+          await navigator.clipboard.writeText(link);
+          button.textContent = "Copied";
+        };
+      });
+      document.querySelectorAll("[data-delete]").forEach((button) => {
+        button.onclick = async () => {
+          if (!confirm("Throw this postcard away?")) return;
+          await api(`/api/postcards/${button.dataset.delete}`, { method: "DELETE" });
+          render();
+        };
+      });
+    }
+
+    function blankCard(name) {
+      return {
+        title: "Untitled postcard",
+        front_image_url: state.designs[0] ? state.designs[0].url : "/designs/balloons.jpeg",
+        orientation: "landscape",
+        size: "standard",
+        message: "",
+        recipient_name: "",
+        sender_name: (name || "").split(" ")[0] || "",
+        stamp_id: "vintage_airmail",
+        seal_color: "#B83A28",
+        is_draft: true,
+      };
+    }
+
+    function editorHtml(form) {
+      const designs = state.designs.map((design) => `<button type="button" data-design="${esc(design.url)}" data-orient="${esc(design.orientation)}" class="${form.front_image_url === design.url ? "selected" : ""}"><img src="${esc(design.url)}" alt="${esc(design.title)}"></button>`).join("");
+      const stamps = STAMPS.map((stamp) => `<button type="button" class="stamp ${form.stamp_id === stamp[0] ? "selected" : ""}" data-stamp="${stamp[0]}" style="background:${stamp[2]};color:${stamp[3]}">${esc(stamp[1])}</button>`).join("");
+      const seals = SEALS.map((color) => `<button type="button" data-seal="${color}" class="${form.seal_color === color ? "selected" : ""}" style="background:${color}" aria-label="${color}"></button>`).join("");
+      return `<div class="wrap editor">
+        <form class="panel" id="editor" style="display:grid;gap:14px">
+          <h1 class="serif" style="margin:0">${form.id ? "Edit postcard" : "New postcard"}</h1>
+          <label>Title<input name="title" maxlength="120" value="${esc(form.title)}"></label>
+          <div>
+            <p style="font-weight:700;margin-bottom:8px">Front</p>
+            <div class="designs">${designs}</div>
+            <label style="margin-top:10px">Or upload a photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+          </div>
+          <div class="row">
+            <label>Format<select name="orientation"><option value="landscape" ${form.orientation === "landscape" ? "selected" : ""}>Landscape</option><option value="portrait" ${form.orientation === "portrait" ? "selected" : ""}>Portrait</option></select></label>
+            <label>Size<select name="size"><option value="standard">Standard 6×4</option><option value="large" ${form.size === "large" ? "selected" : ""}>Large 7×5</option><option value="square" ${form.size === "square" ? "selected" : ""}>Square</option></select></label>
+          </div>
+          <label>To<input name="recipient_name" maxlength="80" value="${esc(form.recipient_name)}" placeholder="Grandma Rose"></label>
+          <label>From<input name="sender_name" maxlength="80" value="${esc(form.sender_name)}"></label>
+          <label>Message<textarea name="message" maxlength="600">${esc(form.message)}</textarea></label>
+          <div><p style="font-weight:700">Stamp</p><div class="stamps">${stamps}</div></div>
+          <div><p style="font-weight:700">Wax seal</p><div class="seals">${seals}</div></div>
+          <p class="error hidden" role="alert"></p>
+          <div class="row">
+            <button class="btn ghost" type="submit" name="intent" value="draft">Save draft</button>
+            <button class="btn solid" type="submit" name="intent" value="send">Seal & send</button>
+          </div>
+        </form>
+        <div class="preview-sticky" id="live"></div>
+      </div>`;
+    }
+
+    function readEditor(form, existing) {
+      const data = Object.fromEntries(new FormData(form).entries());
+      return {
+        ...existing,
+        title: data.title,
+        orientation: data.orientation,
+        size: data.size,
+        message: data.message,
+        recipient_name: data.recipient_name,
+        sender_name: data.sender_name,
+        front_image_url: existing.front_image_url,
+        stamp_id: existing.stamp_id,
+        seal_color: existing.seal_color,
+      };
+    }
+
+    function bindEditor(existing) {
+      const form = document.getElementById("editor");
+      const live = document.getElementById("live");
+      const draw = () => { live.innerHTML = cardHtml(existing) + `<p style="text-align:center;color:var(--muted)">Click the card to flip it.</p>`; };
+      draw();
+      form.oninput = () => { Object.assign(existing, readEditor(form, existing)); draw(); };
+      form.querySelectorAll("[data-design]").forEach((button) => button.onclick = () => {
+        existing.front_image_url = button.dataset.design;
+        existing.orientation = button.dataset.orient;
+        form.querySelector(`[name=orientation]`).value = existing.orientation;
+        form.querySelectorAll("[data-design]").forEach((item) => item.classList.toggle("selected", item === button));
+        draw();
+      });
+      form.querySelectorAll("[data-stamp]").forEach((button) => button.onclick = () => {
+        existing.stamp_id = button.dataset.stamp;
+        form.querySelectorAll("[data-stamp]").forEach((item) => item.classList.toggle("selected", item === button));
+        draw();
+      });
+      form.querySelectorAll("[data-seal]").forEach((button) => button.onclick = () => {
+        existing.seal_color = button.dataset.seal;
+        form.querySelectorAll("[data-seal]").forEach((item) => item.classList.toggle("selected", item === button));
+      });
+      form.photo.onchange = async () => {
+        const file = form.photo.files[0];
+        if (!file) return;
+        const body = new FormData();
+        body.append("file", file);
+        const result = await api("/api/uploads", { method: "POST", body });
+        existing.front_image_url = result.url;
+        form.querySelectorAll("[data-design]").forEach((item) => item.classList.remove("selected"));
+        draw();
+      };
+      form.onsubmit = async (event) => {
+        event.preventDefault();
+        const intent = event.submitter?.value || "draft";
+        const payload = { ...readEditor(form, existing), is_draft: intent !== "send" };
+        const error = form.querySelector(".error");
+        error.classList.add("hidden");
+        try {
+          const saved = existing.id
+            ? await api(`/api/postcards/${existing.id}`, { method: "PUT", json: payload })
+            : await api("/api/postcards", { method: "POST", json: payload });
+          if (payload.is_draft) {
+            go("/app");
+            return;
+          }
+          const link = `${location.origin}/p/${saved.share_id}`;
+          const dialog = document.createElement("div");
+          dialog.className = "share";
+          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><div class="row"><button class="btn solid" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
+          document.body.appendChild(dialog);
+          dialog.querySelector("#copy").onclick = async () => { await navigator.clipboard.writeText(link); dialog.querySelector("#copy").textContent = "Copied"; };
+          dialog.querySelector("#done").onclick = () => go("/app");
+        } catch (err) {
+          error.textContent = err.message;
+          error.classList.remove("hidden");
+        }
+      };
+    }
+
+    async function pageRecipient(shareId) {
+      let card;
+      try {
+        card = await api(`/api/public/postcards/${shareId}`);
+      } catch (err) {
+        return `<div class="empty"><h1 class="serif">This postcard could not be found.</h1><p>${esc(err.message)}</p><a class="btn solid" href="/">Make your own</a></div>`;
+      }
+      return `<div class="envelope-page">
+        <div>
+          <p class="mono" style="text-align:center;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)">A letter has arrived</p>
+          <div class="envelope" id="envelope" data-testid="envelope">
+            <div class="env-back"></div>
+            <div class="letter" id="letter"><img src="${esc(card.front_image_url)}" alt=""></div>
+            <div class="pocket"></div>
+            <div class="flap" id="flap"></div>
+            <div class="wax" id="wax" style="background:${esc(card.seal_color)}">W</div>
+            <div class="who"><p class="mono" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Special delivery for</p><p class="serif" style="font-size:32px;font-style:italic;margin:0" data-testid="envelope-recipient-name">${esc(card.recipient_name || "you")}</p></div>
+          </div>
+          <div id="opened" class="hidden" style="margin-top:28px">${cardHtml(card)}</div>
+        </div>
+      </div>`;
+    }
+
+    function bindRecipient(shareId) {
+      const envelope = document.getElementById("envelope");
+      if (!envelope) return;
+      let opened = false;
+      envelope.onclick = async () => {
+        if (opened) return;
+        opened = true;
+        if (!envelope.dataset.recorded) {
+          envelope.dataset.recorded = "1";
+          api(`/api/public/postcards/${shareId}/open`, { method: "POST", json: {} }).catch(() => {});
+        }
+        document.getElementById("flap").classList.add("open");
+        document.getElementById("wax").classList.add("hidden");
+        setTimeout(() => document.getElementById("letter").classList.add("out"), 500);
+        setTimeout(() => {
+          envelope.classList.add("hidden");
+          document.getElementById("opened").classList.remove("hidden");
+          const bits = document.createElement("div");
+          bits.className = "confetti";
+          for (let i = 0; i < 24; i += 1) {
+            const piece = document.createElement("i");
+            piece.style.left = `${Math.random() * 100}%`;
+            piece.style.background = ["#A34832", "#2B4C6F", "#3D6B52", "#C8963E"][i % 4];
+            piece.style.animationDelay = `${Math.random() * .3}s`;
+            bits.appendChild(piece);
+          }
+          document.body.appendChild(bits);
+        }, 1400);
+      };
+    }
+
+    async function render() {
+      const path = location.pathname;
+      nav();
+      const app = document.getElementById("app");
+      app.innerHTML = `<p class="empty">Loading Whimsy Post…</p>`;
+      try {
+        if (path === "/sign-in" || path === "/sign-up") {
+          app.innerHTML = pageAuth(path === "/sign-in" ? "sign-in" : "sign-up");
+          bindAuth(path === "/sign-in" ? "sign-in" : "sign-up");
+        } else if (path === "/app") {
+          if (!token()) return go("/sign-in");
+          app.innerHTML = await pageDesk();
+          bindDesk();
+          nav();
+        } else if (path === "/app/new" || path.startsWith("/app/edit/")) {
+          if (!token()) return go("/sign-in");
+          if (!state.designs.length) state.designs = await api("/api/designs");
+          let existing = blankCard(state.user && state.user.name);
+          if (path.startsWith("/app/edit/")) {
+            existing = await api(`/api/postcards/${path.split("/").pop()}`);
+          }
+          app.innerHTML = editorHtml(existing);
+          bindEditor(existing);
+        } else if (path.startsWith("/p/")) {
+          const shareId = path.split("/")[2];
+          app.innerHTML = await pageRecipient(shareId);
+          bindRecipient(shareId);
+        } else {
+          app.innerHTML = await pageHome();
+        }
+      } catch (err) {
+        if (err.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+          state.user = null;
+          go("/sign-in");
+          return;
+        }
+        app.innerHTML = `<div class="empty"><h1 class="serif">The studio hiccuped.</h1><p>${esc(err.message)}</p></div>`;
+      }
+      document.querySelectorAll("[data-flip]").forEach((node) => {
+        node.onclick = () => node.classList.toggle("flipped");
+      });
+    }
+
+    document.body.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+      if (!link || link.target === "_blank" || link.origin !== location.origin) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      go(link.pathname);
+    });
+    window.addEventListener("popstate", render);
+
+    (async () => {
+      if (token()) {
+        try { state.user = await api("/api/me"); } catch { localStorage.removeItem(TOKEN_KEY); }
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>
