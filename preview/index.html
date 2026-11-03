@@ -291,6 +291,14 @@
       render();
     }
 
+    function mailHref(link, recipientName, to) {
+      const who = recipientName ? `, ${recipientName}` : "";
+      const subject = "You've got mail";
+      const body = `A little postcard for you${who}.\n\nOpen the envelope here:\n${link}`;
+      const address = (to || "").trim();
+      return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
     function formatDate(iso) {
       const parsed = new Date(`${iso || ""}T12:00:00`);
       if (Number.isNaN(parsed.getTime())) return iso || "";
@@ -497,7 +505,7 @@
           </div>
           <div class="row">
             <a class="btn ghost" href="/app/edit/${esc(card.id)}">Edit</a>
-            ${card.is_draft ? "" : `<button class="btn ghost" data-copy="${esc(card.share_id)}" type="button">Copy link</button>`}
+            ${card.is_draft ? "" : `<button class="btn ghost" data-copy="${esc(card.share_id)}" type="button">Copy link</button><button class="btn ghost" data-mail="${esc(card.share_id)}" data-who="${esc(card.recipient_name)}" type="button">Email</button>`}
             <button class="btn ghost" data-delete="${esc(card.id)}" type="button">Delete</button>
           </div>
         </article>`;
@@ -527,6 +535,11 @@
           const link = `${location.origin}/p/${button.dataset.copy}`;
           await navigator.clipboard.writeText(link);
           button.textContent = "Copied";
+        };
+      });
+      document.querySelectorAll("[data-mail]").forEach((button) => {
+        button.onclick = () => {
+          window.location.href = mailHref(`${location.origin}/p/${button.dataset.mail}`, button.dataset.who || "");
         };
       });
       document.querySelectorAll("[data-delete]").forEach((button) => {
@@ -650,8 +663,19 @@
           const link = `${location.origin}/p/${saved.share_id}`;
           const dialog = document.createElement("div");
           dialog.className = "share";
-          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><div class="row"><button class="btn solid" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
+          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Email opens your mail app with the postcard link already written. You send it from there.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Email the card</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
           document.body.appendChild(dialog);
+          dialog.querySelector("#email").onclick = () => {
+            const to = dialog.querySelector("#mail-to").value.trim();
+            const mailError = dialog.querySelector("#mail-error");
+            if (to && !to.includes("@")) {
+              mailError.textContent = "Enter a full email address, like alex@example.com.";
+              mailError.classList.remove("hidden");
+              return;
+            }
+            mailError.classList.add("hidden");
+            window.location.href = mailHref(link, saved.recipient_name, to);
+          };
           dialog.querySelector("#copy").onclick = async () => { await navigator.clipboard.writeText(link); dialog.querySelector("#copy").textContent = "Copied"; };
           dialog.querySelector("#done").onclick = () => go("/app");
         } catch (err) {
