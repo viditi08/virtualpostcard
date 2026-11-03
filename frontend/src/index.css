@@ -1,0 +1,209 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource-variable/lora";
+@import "@fontsource-variable/lora/wght-italic.css";
+@import "@fontsource-variable/plus-jakarta-sans";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: 'Lora Variable', Georgia, serif;
+    --font-serif: 'Lora Variable', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --color-paper: #FAF7F2;
+    --color-panel: #FFFDF9;
+    --color-cardstock: #FDFBF7;
+    --color-ink: #2C1810;
+    --color-ink-muted: #6E5E57;
+    --color-terracotta: #A34832;
+    --color-postal: #2B4C6F;
+    --color-sage: #3D6B52;
+    --color-gold: #C8963E;
+    --color-envelope: #EFE6D8;
+    --color-envelope-in: #E2D5C3;
+    --color-wax: #B83A28;
+    --animate-marquee: marquee 48s linear infinite;
+    --animate-float-slow: float-slow 7s ease-in-out infinite;
+    --animate-wiggle: wiggle 2.4s ease-in-out infinite;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+    50% { transform: translateY(-10px) rotate(var(--tilt, 0deg)); }
+}
+@keyframes wiggle {
+    0%, 100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
+}
+
+:root {
+    --background: #FAF7F2;
+    --foreground: #2C1810;
+    --card: #FFFDF9;
+    --card-foreground: #2C1810;
+    --popover: #FFFDF9;
+    --popover-foreground: #2C1810;
+    --primary: #A34832;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F1E9DD;
+    --secondary-foreground: #2C1810;
+    --muted: #F1E9DD;
+    --muted-foreground: #6E5E57;
+    --accent: #F4E6D6;
+    --accent-foreground: #2C1810;
+    --destructive: #B91C1C;
+    --border: #E5DBCB;
+    --input: #DCCFBC;
+    --ring: #A34832;
+    --chart-1: #A34832;
+    --chart-2: #2B4C6F;
+    --chart-3: #3D6B52;
+    --chart-4: #C8963E;
+    --chart-5: #6E5E57;
+    --radius: 0.75rem;
+    --sidebar: #FFFDF9;
+    --sidebar-foreground: #2C1810;
+    --sidebar-primary: #A34832;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #F4E6D6;
+    --sidebar-accent-foreground: #2C1810;
+    --sidebar-border: #E5DBCB;
+    --sidebar-ring: #A34832;
+}
+
+.dark {
+    --background: #1C1714;
+    --foreground: #FDFCFA;
+    --card: #26201C;
+    --card-foreground: #FDFCFA;
+    --popover: #26201C;
+    --popover-foreground: #FDFCFA;
+    --primary: #D8735C;
+    --primary-foreground: #1C1714;
+    --secondary: #332A25;
+    --secondary-foreground: #FDFCFA;
+    --muted: #332A25;
+    --muted-foreground: #C2B8AE;
+    --accent: #332A25;
+    --accent-foreground: #FDFCFA;
+    --destructive: #F87171;
+    --border: #3B312B;
+    --input: #4A3E37;
+    --ring: #D8735C;
+    --chart-1: #D8735C;
+    --chart-2: #7FA6CF;
+    --chart-3: #7FB394;
+    --chart-4: #E0B567;
+    --chart-5: #C2B8AE;
+    --sidebar: #26201C;
+    --sidebar-foreground: #FDFCFA;
+    --sidebar-primary: #D8735C;
+    --sidebar-primary-foreground: #1C1714;
+    --sidebar-accent: #332A25;
+    --sidebar-accent-foreground: #FDFCFA;
+    --sidebar-border: #3B312B;
+    --sidebar-ring: #D8735C;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+/* Paper grain: layered radial specks, cheap and resolution independent */
+.paper-grain {
+    background-color: #FAF7F2;
+    background-image:
+        radial-gradient(rgba(44, 24, 16, 0.035) 1px, transparent 1px),
+        radial-gradient(rgba(163, 72, 50, 0.025) 1px, transparent 1px);
+    background-size: 22px 22px, 37px 37px;
+    background-position: 0 0, 11px 17px;
+}
+
+/* Perforated stamp edge: grid of holes, inner area masked back in so only the edges bite */
+.stamp-perf {
+    -webkit-mask-image: radial-gradient(circle 2.6px at 4px 4px, transparent 96%, #000 100%), linear-gradient(#000, #000);
+    -webkit-mask-size: 8px 8px, calc(100% - 8px) calc(100% - 8px);
+    -webkit-mask-position: -4px -4px, center;
+    -webkit-mask-repeat: round, no-repeat;
+    mask-image: radial-gradient(circle 2.6px at 4px 4px, transparent 96%, #000 100%), linear-gradient(#000, #000);
+    mask-size: 8px 8px, calc(100% - 8px) calc(100% - 8px);
+    mask-position: -4px -4px, center;
+    mask-repeat: round, no-repeat;
+}
+
+.airmail-border {
+    background: repeating-linear-gradient(135deg, #A34832 0 14px, #FDFBF7 14px 22px, #2B4C6F 22px 36px, #FDFBF7 36px 44px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-marquee, .animate-float-slow, .animate-wiggle, .stamp-foil { animation: none; }
+}
+
+/* Holographic foil: a soft iridescent sheen that sweeps across stamps now and then */
+@keyframes foil-sweep {
+    0%, 72% { background-position: 160% 0; }
+    100% { background-position: -60% 0; }
+}
+.stamp-foil {
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.55) 44%, rgba(255, 214, 150, 0.35) 50%, rgba(150, 210, 255, 0.3) 56%, transparent 68%);
+    background-size: 250% 100%;
+    background-position: 160% 0;
+    mix-blend-mode: soft-light;
+    animation: foil-sweep 7s ease-in-out infinite;
+}
+.stamp-foil-hover { animation: none; transition: background-position 0.9s ease; }
+.group\/stamp:hover .stamp-foil-hover { background-position: -60% 0; }
