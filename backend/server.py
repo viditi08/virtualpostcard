@@ -61,9 +61,11 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 from clerk_auth import clerk_router  # noqa: E402
+from local_auth import local_router  # noqa: E402
 from routers.postcards import router as postcards_router  # noqa: E402
 
 api_router.include_router(postcards_router)
+api_router.include_router(local_router)
 app.include_router(clerk_router)  # /api/clerk/config and /api/__clerk/*
 
 # Include the router in the main app

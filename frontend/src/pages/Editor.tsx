@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useUser } from "@clerk/react";
+import { useSession } from "@/components/auth/session";
 import { toast } from "sonner";
 import { ArrowLeft, Check, ImagePlus, Loader2, RotateCw, Save, Stamp as StampIcon } from "lucide-react";
 import { apiGet, apiPost, apiPut, apiUpload, errorMessage } from "@/lib/api";
@@ -370,7 +370,7 @@ function EditorForm({ initial, existing }: { initial: PostcardIn; existing?: Pos
 
 export default function Editor() {
   const { id } = useParams();
-  const { user } = useUser();
+  const { user } = useSession();
   const card = useQuery({
     queryKey: ["postcard", id],
     queryFn: () => apiGet<Postcard>(`/postcards/${id}`),

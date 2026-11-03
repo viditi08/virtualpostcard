@@ -120,12 +120,17 @@ def verify_session_token(token: str) -> dict:
 
 def require_user(request: Request) -> dict:
     """FastAPI dependency: the signed-in user from `Authorization: Bearer`
-    (frontend getToken()) or Clerk's `__session` cookie; user["user_id"] is stable."""
-    if not _secret_key():
-        raise HTTPException(status_code=503, detail="Clerk is not configured")
+    (frontend getToken()) or Clerk's `__session` cookie; user["user_id"] is stable.
+
+    With Clerk keys set, the token is a Clerk session. Without them, it is a
+    desk-account token from local_auth (so the studio still runs locally).
+    """
     auth = request.headers.get("authorization", "")
     token = auth[7:] if auth.lower().startswith("bearer ") else request.cookies.get("__session", "")
     if not token:
         raise HTTPException(status_code=401, detail="Not signed in")
-    claims = verify_session_token(token)
-    return {"user_id": claims["sub"], "session_id": claims.get("sid"), "claims": claims}
+    if _publishable_key() and _secret_key():
+        claims = verify_session_token(token)
+        return {"user_id": claims["sub"], "session_id": claims.get("sid"), "claims": claims}
+    from local_auth import verify_local_token
+    return verify_local_token(token)

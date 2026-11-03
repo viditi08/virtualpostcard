@@ -26,6 +26,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     "users": [IndexModel([("user_id", ASCENDING)], name="user_id", unique=True)],
     "uploads": [IndexModel([("id", ASCENDING)], name="id", unique=True)],
+    "local_users": [IndexModel([("email", ASCENDING)], name="email", unique=True)],
 }
 
 

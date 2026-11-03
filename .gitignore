@@ -36,6 +36,7 @@ dist
 *credentials.json*
 **/.env
 **/.env.*
+backend/.local_secret
 
 # Logs and debug files
 npm-debug.log*

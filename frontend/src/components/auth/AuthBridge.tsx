@@ -1,12 +1,12 @@
 import { useRef } from "react";
 import { Navigate } from "react-router-dom";
-import { Show, useAuth } from "@clerk/react";
 import { setTokenGetter } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
+import { useSession } from "@/components/auth/session";
 
-/** Registers Clerk's getToken with the fetch layer and wipes cached data when the user changes. */
+/** Registers the session token with the fetch layer and wipes cached data when the user changes. */
 export function AuthBridge() {
-  const { getToken, userId, isLoaded } = useAuth();
+  const { getToken, userId, isLoaded } = useSession();
   const lastUser = useRef<string | null | undefined>(undefined);
   setTokenGetter(() => getToken());
   if (isLoaded && lastUser.current !== userId) {
@@ -17,12 +17,10 @@ export function AuthBridge() {
 }
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Show when="signed-in">{children}</Show>
-      <Show when="signed-out">
-        <Navigate to="/sign-in" replace />
-      </Show>
-    </>
-  );
+  const { isLoaded, userId } = useSession();
+  if (!isLoaded) {
+    return <p className="paper-grain grid min-h-screen place-items-center text-ink-muted">Opening your desk…</p>;
+  }
+  if (!userId) return <Navigate to="/sign-in" replace />;
+  return children;
 }

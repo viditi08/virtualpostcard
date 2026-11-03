@@ -1,9 +1,31 @@
-# farm-ts
+# Whimsy Post
 
-Minimal split backend/frontend starter: **FastAPI + MongoDB** behind a
-**Vite + React 19 + TypeScript** frontend, joined by a small typed fetch layer
-over `/api`. This is a bare skeleton — no app features are implemented. Build on
-top of it.
+A virtual postcard studio: design a card, seal it, and share a link that opens
+as a paper envelope. FastAPI + MongoDB behind a Vite + React 19 + TypeScript
+frontend, joined by a typed fetch layer over `/api`.
+
+Sign-in uses [Clerk](https://clerk.com) when `CLERK_PUBLISHABLE_KEY` and
+`CLERK_SECRET_KEY` are set in `backend/.env`. Without those keys the studio
+keeps a local desk account (email + password in Mongo) so you can still create
+and open postcards. Add the Clerk keys and restart the backend to switch.
+
+## Running locally
+
+MongoDB must be listening on `localhost:27017`. Then, from the repo root:
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r backend/requirements.txt
+cp /dev/null backend/.env   # or edit the file below
+printf '%s\n' 'MONGO_URL=mongodb://localhost:27017' 'DB_NAME=whimsy_post' 'CORS_ORIGINS=*' > backend/.env
+
+cd backend && ../.venv/bin/uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+cd frontend && yarn install && yarn dev --host 0.0.0.0 --port 43123
+```
+
+Open the frontend URL. Create an account on **Start free**, design a card, seal
+it, and open the share link in a private window.
+
+The rest of this file is the original stack contract the app is built on.
 
 ## Layout
 
