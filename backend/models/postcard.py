@@ -80,3 +80,13 @@ class Profile(BaseModel):
 
 class TodayOut(BaseModel):
     date: str
+
+
+class PostcardEmailIn(BaseModel):
+    to: str
+    link: str = ""
+
+
+class PostcardEmailOut(BaseModel):
+    sent: bool
+    to: str

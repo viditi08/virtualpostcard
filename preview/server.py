@@ -15,6 +15,7 @@ import mimetypes
 import os
 import re
 import secrets
+import sys
 import threading
 import uuid
 from datetime import datetime, timezone
@@ -25,6 +26,9 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "backend"))
+from mailer import MailError, send_postcard_email  # noqa: E402
+
 PUBLIC = ROOT / "frontend" / "public"
 DATA = Path(os.environ.get("WHIMSY_DATA", "/tmp/whimsy-post"))
 INDEX = Path(__file__).resolve().parent / "index.html"
@@ -43,6 +47,23 @@ DESIGNS = [
 ]
 
 LOCK = threading.Lock()
+
+
+def load_env_file(path: Path) -> None:
+    """Read backend/.env without python-dotenv. Existing process env wins."""
+    if not path.exists():
+        return
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if key and key not in os.environ:
+            os.environ[key] = value.strip().strip('"').strip("'")
+
+
+load_env_file(ROOT / "backend" / ".env")
 
 
 def now_iso() -> str:
@@ -168,6 +189,10 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/api/postcards" and method == "POST":
             self._create_card(body)
+            return
+        match = re.fullmatch(r"/api/postcards/([^/]+)/email", path)
+        if match and method == "POST":
+            self._email_card(match.group(1), body)
             return
         match = re.fullmatch(r"/api/postcards/([^/]+)", path)
         if match and method == "GET":
@@ -378,6 +403,36 @@ class Handler(BaseHTTPRequestHandler):
             db["postcards"][index] = updated
             save_db(db)
         self._send_json(200, owner_card(updated))
+
+    def _email_card(self, card_id: str, body: dict) -> None:
+        user = self._require()
+        if not user:
+            return
+        with LOCK:
+            found = self._owned(card_id, user["user_id"])
+        if not found:
+            self._send_json(404, {"detail": "Postcard not found"})
+            return
+        card = found[1]
+        if card.get("is_draft"):
+            self._send_json(409, {"detail": "Seal the postcard before emailing it."})
+            return
+        link = str(body.get("link") or "").strip()
+        if not link:
+            host = self.headers.get("Host", "127.0.0.1")
+            proto = "https" if self.headers.get("X-Forwarded-Proto") == "https" else "http"
+            link = f"{proto}://{host}/p/{card['share_id']}"
+        try:
+            sent_to = send_postcard_email(
+                str(body.get("to") or ""),
+                link,
+                card.get("recipient_name") or "",
+                card.get("sender_name") or "",
+            )
+        except MailError as exc:
+            self._send_json(exc.status, {"detail": str(exc)})
+            return
+        self._send_json(200, {"sent": True, "to": sent_to})
 
     def _delete_card(self, card_id: str) -> None:
         user = self._require()

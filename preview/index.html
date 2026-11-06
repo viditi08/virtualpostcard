@@ -663,17 +663,34 @@
           const link = `${location.origin}/p/${saved.share_id}`;
           const dialog = document.createElement("div");
           dialog.className = "share";
-          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Email opens your mail app with the postcard link already written. You send it from there.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Email the card</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
+          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Send delivers the link from the mailbox in backend/.env. If that file has no SMTP password yet, the button tells you which lines to fill in.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Send the email</button><button class="btn ghost" id="mailto" type="button">Open my mail app</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
           document.body.appendChild(dialog);
-          dialog.querySelector("#email").onclick = () => {
-            const to = dialog.querySelector("#mail-to").value.trim();
+          dialog.querySelector("#email").onclick = async () => {
+            const input = dialog.querySelector("#mail-to");
+            const to = input.value.trim();
             const mailError = dialog.querySelector("#mail-error");
-            if (to && !to.includes("@")) {
+            const button = dialog.querySelector("#email");
+            if (!to.includes("@") || !to.includes(".") || to.includes(" ")) {
               mailError.textContent = "Enter a full email address, like alex@example.com.";
               mailError.classList.remove("hidden");
               return;
             }
             mailError.classList.add("hidden");
+            button.disabled = true;
+            button.textContent = "Sending…";
+            try {
+              const result = await api(`/api/postcards/${saved.id}/email`, { method: "POST", json: { to, link } });
+              mailError.classList.add("hidden");
+              button.textContent = `Sent to ${result.to}`;
+            } catch (err) {
+              mailError.textContent = err.message;
+              mailError.classList.remove("hidden");
+              button.disabled = false;
+              button.textContent = "Send the email";
+            }
+          };
+          dialog.querySelector("#mailto").onclick = () => {
+            const to = dialog.querySelector("#mail-to").value.trim();
             window.location.href = mailHref(link, saved.recipient_name, to);
           };
           dialog.querySelector("#copy").onclick = async () => { await navigator.clipboard.writeText(link); dialog.querySelector("#copy").textContent = "Copied"; };

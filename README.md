@@ -107,10 +107,33 @@ FastAPI, async throughout. `python` is the app venv interpreter
   — `ObjectId` is not JSON-serializable and leaks into response bodies. Keep the
   `uuid4` default-factory pattern from `StatusCheck`.
 - **Config**: `backend/.env` — `MONGO_URL` (connection string), `DB_NAME`
-  (database name), `CORS_ORIGINS`. `server.py` loads it with `python-dotenv`
-  above its local imports, and `lib/db.py` self-loads it so standalone scripts
-  inherit it too. The pod runs `mongod` locally, so `MONGO_URL` points at
-  `localhost`. Add new secrets/config here; read them with `os.environ`.
+  (database name), `CORS_ORIGINS`, and the SMTP keys below. Copy
+  `backend/env.sample` to `backend/.env`. `server.py` loads it with
+  `python-dotenv` above its local imports, `lib/db.py` self-loads it so
+  standalone scripts inherit it, and `preview/server.py` reads the same file.
+  The pod runs `mongod` locally, so `MONGO_URL` points at `localhost`. Add new
+  secrets/config here; read them with `os.environ`. Do not commit `.env`.
+
+## Sending the postcard by email
+
+Seal a card and choose **Send the email**. The server sends through SMTP using
+`backend/mailer.py`. The settings live in **`backend/.env`**, not in the
+Python file:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=your-16-character-app-password
+SMTP_FROM=you@gmail.com
+SMTP_STARTTLS=1
+```
+
+Gmail rejects your normal password. Turn on 2-Step Verification, create an App
+Password (Google Account → Security → App passwords), and put that value in
+`SMTP_PASSWORD`. Restart the preview or the FastAPI server after saving.
+`POST /api/postcards/{id}/email` with `{"to","link"}` is the route. **My mail
+app** still opens a mailto link if you would rather send it yourself.
 - **Dates**: `backend/lib/dates.py` — `today_iso(tz=None)`. The pod clock is
   UTC; anchor "today" server-side with this, never with client-side date math.
 - **Interactive check**: `cd /app/backend && python -c 'import server'` catches

@@ -11,8 +11,9 @@ from starlette.concurrency import run_in_threadpool
 from clerk_auth import require_user
 from lib.dates import today_iso
 from lib.db import db
+from mailer import MailError, send_postcard_email
 from models.postcard import (
-    Design, Postcard, PostcardIn, Profile, PublicPostcard, TodayOut, UploadOut,
+    Design, Postcard, PostcardEmailIn, PostcardEmailOut, PostcardIn, Profile, PublicPostcard, TodayOut, UploadOut,
 )
 
 router = APIRouter()
@@ -122,6 +123,30 @@ async def update_postcard(id: str, body: PostcardIn, user: dict = Depends(requir
     if not res:
         raise HTTPException(status_code=404, detail="Postcard not found")
     return _to_postcard(res)
+
+
+@router.post("/postcards/{id}/email", response_model=PostcardEmailOut)
+async def email_postcard(id: str, body: PostcardEmailIn, request: Request, user: dict = Depends(require_user)):
+    doc = await db.postcards.find_one({"id": id, "owner_id": user["user_id"]})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Postcard not found")
+    if doc.get("is_draft"):
+        raise HTTPException(status_code=409, detail="Seal the postcard before emailing it.")
+    link = body.link.strip() or _public_link(request, doc["share_id"])
+    try:
+        sent_to = await run_in_threadpool(
+            send_postcard_email, body.to, link, doc.get("recipient_name") or "", doc.get("sender_name") or "",
+        )
+    except MailError as exc:
+        raise HTTPException(status_code=exc.status, detail=str(exc)) from exc
+    return PostcardEmailOut(sent=True, to=sent_to)
+
+
+def _public_link(request: Request, share_id: str) -> str:
+    configured = os.environ.get("PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if configured:
+        return f"{configured}/p/{share_id}"
+    return str(request.base_url).rstrip("/") + f"/p/{share_id}"
 
 
 @router.delete("/postcards/{id}", status_code=204)
