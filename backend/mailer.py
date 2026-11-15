@@ -159,10 +159,17 @@ def public_base_url() -> str:
 
 
 def anyone_url(card: dict) -> str:
-    """A link on the public site. Empty while the studio only has a localhost address."""
+    """A link on the public site. Empty while the studio only has a localhost address.
+
+    A sealed card uses /p/<share id>, which is the page a stranger can open.
+    A card with no share id falls back to the packed #card= link.
+    """
     base = public_base_url()
     if not base:
         return ""
+    share_id = str(card.get("share_id") or "")
+    if re.fullmatch(r"[A-Za-z0-9_-]{4,80}", share_id):
+        return f"{base}/p/{share_id}"
     return f"{base}/#card={pack_card(card)}"
 
 
@@ -187,7 +194,7 @@ def postcard_message(link: str, recipient_name: str, sender_name: str, note: str
     if public:
         parts.append(f"Open the envelope here:\n{public}")
     if sender:
-        parts.append(f"— {sender}")
+        parts.append(f"\u2014 {sender}")
     return "You've got mail", "\n\n".join(parts) + "\n"
 
 
