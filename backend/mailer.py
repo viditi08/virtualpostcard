@@ -16,6 +16,8 @@ App passwords, and put that 16-character value in SMTP_PASSWORD.
 
 from __future__ import annotations
 
+import base64
+import json
 import os
 import re
 import smtplib
@@ -108,15 +110,60 @@ def _is_public_http_url(url: str) -> bool:
     return True
 
 
+def pack_card(card: dict) -> str:
+    """The postcard itself, packed into a link so a stranger's browser can open it."""
+    image = str(card.get("front_image_url") or "")
+    if not (image.startswith("/designs/") or image == "/hero-image.jpeg"):
+        image = ""
+    orientation = card.get("orientation") if card.get("orientation") in {"landscape", "portrait"} else "landscape"
+    size = card.get("size") if card.get("size") in {"standard", "large", "square"} else "standard"
+    seal = str(card.get("seal_color") or "")
+    if not re.fullmatch(r"#[0-9A-Fa-f]{6}", seal):
+        seal = "#B83A28"
+    payload = {
+        "title": str(card.get("title") or "")[:120],
+        "front_image_url": image,
+        "orientation": orientation,
+        "size": size,
+        "message": str(card.get("message") or "")[:600],
+        "recipient_name": str(card.get("recipient_name") or "")[:80],
+        "sender_name": str(card.get("sender_name") or "")[:80],
+        "stamp_id": str(card.get("stamp_id") or "vintage_airmail")[:40],
+        "seal_color": seal,
+        "date_str": str(card.get("date_str") or "")[:20],
+    }
+    raw = json.dumps(payload, separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(raw).decode().rstrip("=")
+
+
+def unpack_card(token: str) -> dict | None:
+    if not re.fullmatch(r"[A-Za-z0-9_-]{10,8000}", token or ""):
+        return None
+    try:
+        data = json.loads(base64.urlsafe_b64decode(token + "=" * (-len(token) % 4)))
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    normalized = pack_card(data)
+    return json.loads(base64.urlsafe_b64decode(normalized + "=" * (-len(normalized) % 4)))
+
+
+def anyone_url(card: dict) -> str:
+    """A link on the public site. Empty while the studio only has a localhost address."""
+    base = os.environ.get("PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if not _is_public_http_url(base):
+        return ""
+    return f"{base}/#card={pack_card(card)}"
+
+
 def public_postcard_url(link: str, share_id: str = "") -> str:
     """A link the recipient can open. A localhost address is left out."""
-    configured = os.environ.get("PUBLIC_BASE_URL", "").strip().rstrip("/")
-    if configured and _is_public_http_url(configured) and share_id and re.fullmatch(r"[A-Za-z0-9_-]{4,40}", share_id):
-        return f"{configured}/p/{share_id}"
+    del share_id
     candidate = link.strip()
-    if any(char in candidate for char in "\r\n") or len(candidate) > 500:
-        return ""
-    return candidate if _is_public_http_url(candidate) else ""
+    if candidate and not any(char in candidate for char in "\r\n") and len(candidate) <= 8000 and _is_public_http_url(candidate):
+        return candidate
+    return ""
 
 
 def postcard_message(link: str, recipient_name: str, sender_name: str, note: str = "", share_id: str = "") -> tuple[str, str]:

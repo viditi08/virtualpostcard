@@ -81,6 +81,36 @@ class MailerTests(unittest.TestCase):
         self.assertEqual(sent_to, "alex@example.com")
         smtp.__enter__.assert_called()
 
+    def test_public_link_carries_the_card_and_not_localhost(self) -> None:
+        card = {
+            "title": "Hello",
+            "front_image_url": "/designs/lighthouse.jpeg",
+            "orientation": "landscape",
+            "size": "standard",
+            "message": "Wish you were here",
+            "recipient_name": "Alex",
+            "sender_name": "Sam",
+            "stamp_id": "vintage_airmail",
+            "seal_color": "#B83A28",
+            "date_str": "2026-11-14",
+        }
+        self.assertEqual(mailer.anyone_url(card), "")
+        os.environ["PUBLIC_BASE_URL"] = "https://cards.example.com"
+        url = mailer.anyone_url(card)
+        self.assertTrue(url.startswith("https://cards.example.com/#card="))
+        self.assertNotIn("localhost", url)
+        self.assertNotIn("127.0.0.1", url)
+        token = url.split("#card=", 1)[1]
+        opened = mailer.unpack_card(token)
+        self.assertEqual(opened["message"], "Wish you were here")
+        self.assertEqual(opened["front_image_url"], "/designs/lighthouse.jpeg")
+        self.assertIsNone(mailer.unpack_card("javascript:alert(1)"))
+        _subject, body = mailer.postcard_message(url, "Alex", "Sam", "Wish you were here")
+        self.assertIn(url, body)
+        self.assertNotIn("127.0.0.1", body)
+        _subject, local_body = mailer.postcard_message("http://127.0.0.1:43123/p/abc", "Alex", "Sam", "Wish you were here")
+        self.assertNotIn("127.0.0.1", local_body)
+
     def test_localhost_link_is_left_out_and_the_letter_is_sent(self) -> None:
         os.environ.update({
             "SMTP_HOST": "smtp.gmail.com",

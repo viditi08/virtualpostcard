@@ -11,7 +11,7 @@ from starlette.concurrency import run_in_threadpool
 from clerk_auth import require_user
 from lib.dates import today_iso
 from lib.db import db
-from mailer import MailError, send_postcard_email
+from mailer import MailError, anyone_url, send_postcard_email
 from models.postcard import (
     Design, Postcard, PostcardEmailIn, PostcardEmailOut, PostcardIn, Profile, PublicPostcard, TodayOut, UploadOut,
 )
@@ -132,7 +132,7 @@ async def email_postcard(id: str, body: PostcardEmailIn, request: Request, user:
         raise HTTPException(status_code=404, detail="Postcard not found")
     if doc.get("is_draft"):
         raise HTTPException(status_code=409, detail="Seal the postcard before emailing it.")
-    link = body.link.strip() or _public_link(request, doc["share_id"])
+    link = anyone_url(doc) or body.link.strip() or _public_link(request, doc["share_id"])
     try:
         sent_to = await run_in_threadpool(
             send_postcard_email,

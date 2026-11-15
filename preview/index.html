@@ -664,10 +664,21 @@
             go("/app");
             return;
           }
-          const link = `${location.origin}/p/${saved.share_id}`;
+          const localLink = `${location.origin}/p/${saved.share_id}`;
+          let publicLink = "";
+          try {
+            const info = await api(`/api/postcards/${saved.id}/anyone-link`);
+            publicLink = info.url || "";
+          } catch (err) {
+            publicLink = "";
+          }
+          const link = publicLink || localLink;
+          const note = publicLink
+            ? "Anyone with this link can open the envelope, on their own phone or computer."
+            : "This address only opens on this computer. A link for anyone else needs the public site address in PUBLIC_BASE_URL in backend/.env.";
           const dialog = document.createElement("div");
           dialog.className = "share";
-          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Send the email delivers the letter from Postcard Delivery, the mailbox in backend/.env. An address that only works on this computer is left out of the message.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Send the email</button><button class="btn ghost" id="mailto" type="button">Open my mail app</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
+          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>${esc(note)}</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Send the email delivers the letter from Postcard Delivery. When a public link exists, that is the address in the email.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Send the email</button><button class="btn ghost" id="mailto" type="button">Open my mail app</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(localLink)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
           document.body.appendChild(dialog);
           dialog.querySelector("#email").onclick = async () => {
             const input = dialog.querySelector("#mail-to");
@@ -706,13 +717,23 @@
       };
     }
 
-    async function pageRecipient(shareId) {
-      let card;
+    function cardFromHash() {
+      const match = (location.hash || "").match(/^#card=([A-Za-z0-9_-]+)$/);
+      if (!match) return null;
       try {
-        card = await api(`/api/public/postcards/${shareId}`);
+        const token = match[1];
+        const json = atob(token.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((token.length + 3) % 4));
+        const data = JSON.parse(json);
+        const image = typeof data.front_image_url === "string" ? data.front_image_url : "";
+        if (image && !image.startsWith("/designs/") && image !== "/hero-image.jpeg") return null;
+        if (!data || typeof data !== "object") return null;
+        return data;
       } catch (err) {
-        return `<div class="empty"><h1 class="serif">This postcard could not be found.</h1><p>${esc(err.message)}</p><a class="btn solid" href="/">Make your own</a></div>`;
+        return null;
       }
+    }
+
+    function recipientHtml(card) {
       return `<div class="envelope-page">
         <div>
           <p class="mono" style="text-align:center;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)">A letter has arrived</p>
@@ -727,6 +748,16 @@
           <div id="opened" class="hidden" style="width:min(92vw,560px);margin-top:28px">${cardHtml(card)}</div>
         </div>
       </div>`;
+    }
+
+    async function pageRecipient(shareId) {
+      let card;
+      try {
+        card = await api(`/api/public/postcards/${shareId}`);
+      } catch (err) {
+        return `<div class="empty"><h1 class="serif">This postcard could not be found.</h1><p>${esc(err.message)}</p><a class="btn solid" href="/">Make your own</a></div>`;
+      }
+      return recipientHtml(card);
     }
 
     function bindRecipient(shareId) {
@@ -764,6 +795,15 @@
       const path = location.pathname;
       nav();
       const app = document.getElementById("app");
+      const packed = cardFromHash();
+      if (packed) {
+        app.innerHTML = recipientHtml(packed);
+        bindRecipient("packed");
+        document.querySelectorAll("[data-flip]").forEach((node) => {
+          node.onclick = () => node.classList.toggle("flipped");
+        });
+        return;
+      }
       app.innerHTML = `<p class="empty">Loading Whimsy Post…</p>`;
       try {
         if (path === "/sign-in" || path === "/sign-up") {

@@ -135,8 +135,9 @@ Password (Google Account → Security → App passwords), and put that value in
 The message is sent from `SMTP_FROM`, shown as Postcard Delivery. The email
 contains the letter written on the card. A `localhost` link is left out,
 because the recipient cannot open this computer. Set `PUBLIC_BASE_URL` to the
-public site address when the studio is on the internet, and that link is
-included. `POST /api/postcards/{id}/email` with `{"to","link"}` is the route.
+public site address, with no trailing slash. The email then includes
+`https://that-site/#card=...`. The postcard is inside that link, so anyone can
+open the envelope without this computer staying on. `POST /api/postcards/{id}/email` with `{"to","link"}` is the route.
 **Open my mail app** still opens a mailto draft if you would rather send it
 from your own inbox.
 - **Dates**: `backend/lib/dates.py` — `today_iso(tz=None)`. The pod clock is

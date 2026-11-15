@@ -27,7 +27,7 @@ from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
-from mailer import MailError, send_postcard_email  # noqa: E402
+from mailer import MailError, anyone_url, send_postcard_email  # noqa: E402
 
 PUBLIC = ROOT / "frontend" / "public"
 DATA = Path(os.environ.get("WHIMSY_DATA", "/tmp/whimsy-post"))
@@ -189,6 +189,10 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/api/postcards" and method == "POST":
             self._create_card(body)
+            return
+        match = re.fullmatch(r"/api/postcards/([^/]+)/anyone-link", path)
+        if match and method == "GET":
+            self._anyone_link(match.group(1))
             return
         match = re.fullmatch(r"/api/postcards/([^/]+)/email", path)
         if match and method == "POST":
@@ -417,11 +421,7 @@ class Handler(BaseHTTPRequestHandler):
         if card.get("is_draft"):
             self._send_json(409, {"detail": "Seal the postcard before emailing it."})
             return
-        link = str(body.get("link") or "").strip()
-        if not link:
-            host = self.headers.get("Host", "127.0.0.1")
-            proto = "https" if self.headers.get("X-Forwarded-Proto") == "https" else "http"
-            link = f"{proto}://{host}/p/{card['share_id']}"
+        link = anyone_url(card)
         try:
             sent_to = send_postcard_email(
                 str(body.get("to") or ""),
@@ -434,7 +434,18 @@ class Handler(BaseHTTPRequestHandler):
         except MailError as exc:
             self._send_json(exc.status, {"detail": str(exc)})
             return
-        self._send_json(200, {"sent": True, "to": sent_to})
+        self._send_json(200, {"sent": True, "to": sent_to, "url": link})
+
+    def _anyone_link(self, card_id: str) -> None:
+        user = self._require()
+        if not user:
+            return
+        with LOCK:
+            found = self._owned(card_id, user["user_id"])
+        if not found:
+            self._send_json(404, {"detail": "Postcard not found"})
+            return
+        self._send_json(200, {"url": anyone_url(found[1])})
 
     def _delete_card(self, card_id: str) -> None:
         user = self._require()
