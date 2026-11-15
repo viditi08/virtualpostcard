@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
@@ -85,3 +86,37 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# The built React app is served by this same process, so one host has both the
+# site and /api. Leave this off when frontend/dist has not been built yet.
+FRONTEND_DIST = (ROOT_DIR.parent / "frontend" / "dist").resolve()
+
+
+def _frontend_file(full_path: str) -> Path | None:
+    if not full_path:
+        return None
+    candidate = (FRONTEND_DIST / full_path).resolve()
+    try:
+        candidate.relative_to(FRONTEND_DIST)
+    except ValueError:
+        return None
+    if candidate.is_file():
+        return candidate
+    return None
+
+
+def _mount_frontend() -> None:
+    index = FRONTEND_DIST / "index.html"
+    if not index.is_file():
+        logger.info("frontend dist missing at %s; serving the API only", FRONTEND_DIST)
+        return
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def frontend(full_path: str):
+        found = _frontend_file(full_path)
+        if found is not None:
+            return FileResponse(found)
+        return FileResponse(index)
+
+
+_mount_frontend()
