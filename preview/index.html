@@ -291,10 +291,14 @@
       render();
     }
 
-    function mailHref(link, recipientName, to) {
+    function mailHref(link, recipientName, to, note) {
       const who = recipientName ? `, ${recipientName}` : "";
       const subject = "You've got mail";
-      const body = `A little postcard for you${who}.\n\nOpen the envelope here:\n${link}`;
+      const local = /localhost|127\.0\.0\.1|0\.0\.0\.0/.test(link || "");
+      const letter = (note || "").trim();
+      const body = local
+        ? `A little postcard for you${who}.\n\n${letter}\n`
+        : `A little postcard for you${who}.\n\n${letter ? letter + "\n\n" : ""}Open the envelope here:\n${link}`;
       const address = (to || "").trim();
       return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
@@ -663,7 +667,7 @@
           const link = `${location.origin}/p/${saved.share_id}`;
           const dialog = document.createElement("div");
           dialog.className = "share";
-          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Send delivers the link from the mailbox in backend/.env. If that file has no SMTP password yet, the button tells you which lines to fill in.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Send the email</button><button class="btn ghost" id="mailto" type="button">Open my mail app</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
+          dialog.innerHTML = `<div class="panel"><h2 class="serif">Sealed and ready.</h2><p>Anyone with this link can open the envelope. Drafts stay private.</p><p class="linkbox">${esc(link)}</p><label>Their email<input id="mail-to" type="email" placeholder="alex@example.com" autocomplete="email"></label><p id="mail-note" style="margin:0;color:var(--muted);font-size:14px">Send the email delivers the letter from Postcard Delivery, the mailbox in backend/.env. An address that only works on this computer is left out of the message.</p><p class="error hidden" id="mail-error" role="alert"></p><div class="row"><button class="btn solid" id="email" type="button">Send the email</button><button class="btn ghost" id="mailto" type="button">Open my mail app</button><button class="btn ghost" id="copy" type="button">Copy link</button><a class="btn ghost" href="${esc(link)}" target="_blank">Preview</a><button class="btn ghost" id="done" type="button">Back to desk</button></div></div>`;
           document.body.appendChild(dialog);
           dialog.querySelector("#email").onclick = async () => {
             const input = dialog.querySelector("#mail-to");
@@ -691,7 +695,7 @@
           };
           dialog.querySelector("#mailto").onclick = () => {
             const to = dialog.querySelector("#mail-to").value.trim();
-            window.location.href = mailHref(link, saved.recipient_name, to);
+            window.location.href = mailHref(link, saved.recipient_name, to, saved.message);
           };
           dialog.querySelector("#copy").onclick = async () => { await navigator.clipboard.writeText(link); dialog.querySelector("#copy").textContent = "Copied"; };
           dialog.querySelector("#done").onclick = () => go("/app");

@@ -132,8 +132,13 @@ SMTP_STARTTLS=1
 Gmail rejects your normal password. Turn on 2-Step Verification, create an App
 Password (Google Account → Security → App passwords), and put that value in
 `SMTP_PASSWORD`. Restart the preview or the FastAPI server after saving.
-`POST /api/postcards/{id}/email` with `{"to","link"}` is the route. **My mail
-app** still opens a mailto link if you would rather send it yourself.
+The message is sent from `SMTP_FROM`, shown as Postcard Delivery. The email
+contains the letter written on the card. A `localhost` link is left out,
+because the recipient cannot open this computer. Set `PUBLIC_BASE_URL` to the
+public site address when the studio is on the internet, and that link is
+included. `POST /api/postcards/{id}/email` with `{"to","link"}` is the route.
+**Open my mail app** still opens a mailto draft if you would rather send it
+from your own inbox.
 - **Dates**: `backend/lib/dates.py` — `today_iso(tz=None)`. The pod clock is
   UTC; anchor "today" server-side with this, never with client-side date math.
 - **Interactive check**: `cd /app/backend && python -c 'import server'` catches

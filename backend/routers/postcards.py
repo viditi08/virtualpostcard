@@ -135,7 +135,13 @@ async def email_postcard(id: str, body: PostcardEmailIn, request: Request, user:
     link = body.link.strip() or _public_link(request, doc["share_id"])
     try:
         sent_to = await run_in_threadpool(
-            send_postcard_email, body.to, link, doc.get("recipient_name") or "", doc.get("sender_name") or "",
+            send_postcard_email,
+            body.to,
+            link,
+            doc.get("recipient_name") or "",
+            doc.get("sender_name") or "",
+            doc.get("message") or "",
+            doc.get("share_id") or "",
         )
     except MailError as exc:
         raise HTTPException(status_code=exc.status, detail=str(exc)) from exc

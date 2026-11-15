@@ -362,7 +362,7 @@ function EditorForm({ initial, existing }: { initial: PostcardIn; existing?: Pos
         </div>
       </main>
       {existing && (
-        <ShareDialog open={shareOpen} onOpenChange={setShareOpen} cardId={existing.id} shareId={existing.share_id} recipient={existing.recipient_name} />
+        <ShareDialog open={shareOpen} onOpenChange={setShareOpen} cardId={existing.id} shareId={existing.share_id} recipient={existing.recipient_name} message={existing.message} />
       )}
     </div>
   );

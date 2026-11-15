@@ -428,6 +428,8 @@ class Handler(BaseHTTPRequestHandler):
                 link,
                 card.get("recipient_name") or "",
                 card.get("sender_name") or "",
+                card.get("message") or "",
+                card.get("share_id") or "",
             )
         except MailError as exc:
             self._send_json(exc.status, {"detail": str(exc)})

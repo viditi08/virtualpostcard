@@ -75,10 +75,38 @@ class MailerTests(unittest.TestCase):
         smtp.send_message.assert_called_once()
         message = smtp.send_message.call_args.args[0]
         self.assertEqual(message["To"], "alex@example.com")
+        self.assertEqual(message["From"], "Postcard Delivery <post@example.com>")
         self.assertIn("https://post.test/p/abc", message.get_content())
         self.assertIn("Alex", message.get_content())
         self.assertEqual(sent_to, "alex@example.com")
         smtp.__enter__.assert_called()
+
+    def test_localhost_link_is_left_out_and_the_letter_is_sent(self) -> None:
+        os.environ.update({
+            "SMTP_HOST": "smtp.gmail.com",
+            "SMTP_PORT": "587",
+            "SMTP_USER": "postcarddeliveryy@gmail.com",
+            "SMTP_PASSWORD": "app password",
+            "SMTP_FROM": "postcarddeliveryy@gmail.com",
+        })
+        smtp = mock.MagicMock()
+        smtp.__enter__.return_value = smtp
+        with mock.patch("mailer.smtplib.SMTP", return_value=smtp):
+            mailer.send_postcard_email(
+                "alex@example.com",
+                "http://127.0.0.1:43123/p/abc",
+                "Alex",
+                "Sam",
+                "Wish you were here",
+                "abc",
+            )
+        message = smtp.send_message.call_args.args[0]
+        body = message.get_content()
+        self.assertEqual(message["From"], "Postcard Delivery <postcarddeliveryy@gmail.com>")
+        self.assertNotIn("127.0.0.1", body)
+        self.assertNotIn("localhost", body)
+        self.assertIn("Wish you were here", body)
+        self.assertIn("Sam", body)
 
     def test_gmail_auth_failure_mentions_app_password(self) -> None:
         os.environ.update({
@@ -102,8 +130,8 @@ class PreviewEmailRouteTests(unittest.TestCase):
     def test_unconfigured_smtp_names_the_env_file(self) -> None:
         root = Path(__file__).resolve().parents[2]
         env = os.environ.copy()
-        for key in ("SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM", "SMTP_STARTTLS"):
-            env.pop(key, None)
+        for key in ("SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM", "SMTP_FROM_NAME", "SMTP_STARTTLS", "PUBLIC_BASE_URL"):
+            env[key] = ""
         env["WHIMSY_PORT"] = "43221"
         data = "/tmp/whimsy-smtp-test"
         shutil.rmtree(data, ignore_errors=True)

@@ -22,6 +22,8 @@ import smtplib
 import ssl
 from dataclasses import dataclass
 from email.message import EmailMessage
+from email.utils import formataddr
+from urllib.parse import urlparse
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -90,24 +92,64 @@ def _clean_line(value: str, limit: int) -> str:
     return " ".join(value.replace("\r", " ").replace("\n", " ").split())[:limit]
 
 
-def postcard_message(link: str, recipient_name: str, sender_name: str) -> tuple[str, str]:
-    cleaned_link = link.strip()
-    if any(char in cleaned_link for char in "\r\n") or not cleaned_link.startswith(("http://", "https://")):
-        raise MailError("The postcard link is not a web address.", 422)
-    if len(cleaned_link) > 500:
-        raise MailError("The postcard link is too long.", 422)
+def _is_public_http_url(url: str) -> bool:
+    parsed = urlparse(url.strip())
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return False
+    host = parsed.hostname.lower().rstrip(".")
+    if host in {"localhost", "127.0.0.1", "0.0.0.0", "::1"} or host.endswith(".local"):
+        return False
+    parts = host.split(".")
+    if len(parts) == 4 and all(part.isdigit() for part in parts):
+        first = int(parts[0])
+        second = int(parts[1])
+        if first in {10, 127} or (first == 192 and second == 168) or (first == 172 and 16 <= second <= 31):
+            return False
+    return True
+
+
+def public_postcard_url(link: str, share_id: str = "") -> str:
+    """A link the recipient can open. A localhost address is left out."""
+    configured = os.environ.get("PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if configured and _is_public_http_url(configured) and share_id and re.fullmatch(r"[A-Za-z0-9_-]{4,40}", share_id):
+        return f"{configured}/p/{share_id}"
+    candidate = link.strip()
+    if any(char in candidate for char in "\r\n") or len(candidate) > 500:
+        return ""
+    return candidate if _is_public_http_url(candidate) else ""
+
+
+def postcard_message(link: str, recipient_name: str, sender_name: str, note: str = "", share_id: str = "") -> tuple[str, str]:
     who = _clean_line(recipient_name, 80)
     sender = _clean_line(sender_name, 80)
+    written = note.replace("\r", "").strip()[:600]
     greeting = f"A little postcard for you, {who}." if who else "A little postcard for you."
-    signoff = f"\n\n— {sender}" if sender else ""
-    subject = "You've got mail"
-    body = f"{greeting}\n\nOpen the envelope here:\n{cleaned_link}{signoff}\n"
-    return subject, body
+    parts = [greeting]
+    if written:
+        parts.append(written)
+    public = public_postcard_url(link, share_id)
+    if public:
+        parts.append(f"Open the envelope here:\n{public}")
+    if sender:
+        parts.append(f"— {sender}")
+    return "You've got mail", "\n\n".join(parts) + "\n"
 
 
-def send_postcard_email(to: str, link: str, recipient_name: str = "", sender_name: str = "") -> str:
+def from_header(settings: SmtpSettings) -> str:
+    name = _clean_line(os.environ.get("SMTP_FROM_NAME", "Postcard Delivery"), 80) or "Postcard Delivery"
+    return formataddr((name, settings.from_addr))
+
+
+def send_postcard_email(
+    to: str,
+    link: str,
+    recipient_name: str = "",
+    sender_name: str = "",
+    note: str = "",
+    share_id: str = "",
+) -> str:
     recipient = normalize_recipient(to)
-    subject, body = postcard_message(link, recipient_name, sender_name)
+    subject, body = postcard_message(link, recipient_name, sender_name, note, share_id)
     settings = smtp_settings()
     if not settings.ready:
         names = ", ".join(settings.missing)
@@ -120,7 +162,7 @@ def send_postcard_email(to: str, link: str, recipient_name: str = "", sender_nam
         )
     message = EmailMessage()
     message["Subject"] = subject
-    message["From"] = settings.from_addr
+    message["From"] = from_header(settings)
     message["To"] = recipient
     message.set_content(body)
     try:
