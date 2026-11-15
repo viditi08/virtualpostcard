@@ -1,18 +1,14 @@
-"""Deployed defaults. Render's dashboard value is used when it is already valid."""
+"""Non-secret defaults. Passwords and the database address come from the environment."""
 
 import os
 
 DEFAULTS = {
-    "MONGO_URL": "mongodb+srv://postcarddeliveryy_db_user:DY3kaMdVdwaslTBd@cluster0.hyv9ef5.mongodb.net/whimsy_post",
     "DB_NAME": "whimsy_post",
     "CORS_ORIGINS": "*",
     "SMTP_HOST": "smtp.gmail.com",
     "SMTP_PORT": "587",
-    "SMTP_USER": "postcarddeliveryy@gmail.com",
-    "SMTP_PASSWORD": "rjlzqdynuqmqzeqo",
-    "SMTP_FROM": "postcarddeliveryy@gmail.com",
-    "SMTP_FROM_NAME": "Postcard Delivery",
     "SMTP_STARTTLS": "1",
+    "SMTP_FROM_NAME": "Postcard Delivery",
     "PUBLIC_BASE_URL": "https://virtualpostcard.onrender.com",
 }
 
@@ -31,9 +27,8 @@ def mongo_url_from(raw: str) -> str:
 
 def apply() -> None:
     for key, value in DEFAULTS.items():
-        current = os.environ.get(key, "")
-        if key == "MONGO_URL":
-            cleaned = mongo_url_from(current)
-            os.environ[key] = cleaned if cleaned.startswith(("mongodb://", "mongodb+srv://")) else value
-        elif not current.strip():
+        if not os.environ.get(key, "").strip():
             os.environ[key] = value
+    cleaned = mongo_url_from(os.environ.get("MONGO_URL", ""))
+    if cleaned.startswith(("mongodb://", "mongodb+srv://")):
+        os.environ["MONGO_URL"] = cleaned
