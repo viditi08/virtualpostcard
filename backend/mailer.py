@@ -1,2 +1,1 @@
-from pathlib import Path
-print(Path('/workspace/backend/mailer.py').read_text())
+PLACEHOLDER_WILL_REPLACE
