@@ -14,10 +14,13 @@ from datetime import datetime
 
 
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+load_dotenv(ROOT_DIR / '.env', override=True)
+from settings_env import apply  # noqa: E402
+
+apply()
 
 # MongoDB connection
-from lib.db import client, db, ensure_indexes
+from lib.db import client, db, ensure_indexes  # noqa: E402
 
 
 # Startup runs before the yield, shutdown after it. Add your own setup/teardown here.
