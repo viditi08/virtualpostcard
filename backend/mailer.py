@@ -196,7 +196,7 @@ def postcard_message(link: str, recipient_name: str, sender_name: str, note: str
     if public:
         parts.append(f"Open the envelope here:\n{public}")
     if sender:
-        parts.append(f"\u2014 {sender}")
+        parts.append(f"— {sender}")
     return "You've got mail", "\n\n".join(parts) + "\n"
 
 
@@ -226,37 +226,41 @@ def clean_secret(value: str) -> str:
 def mail_credentials() -> tuple[str, str]:
     """Which HTTPS mail service to call, and the key to send.
 
-    Brevo's API key starts with xkeysib-. Its SMTP key starts with xsmtpsib-
-    and is refused by the API. Resend's key starts with re_.
+    Resend sends the postcard whenever RESEND_API_KEY starts with re_, even
+    when a Brevo key is also set. Brevo is only the fallback. Its API key
+    starts with xkeysib-. Its SMTP key starts with xsmtpsib- and is refused.
     """
     brevo = clean_secret(os.environ.get("BREVO_API_KEY", ""))
     resend = clean_secret(os.environ.get("RESEND_API_KEY", ""))
-    if brevo.startswith("xsmtpsib-") or resend.startswith("xsmtpsib-"):
+    if resend.startswith("xsmtpsib-"):
         raise MailError(
-            "That is a Brevo SMTP key, and the API will not accept it. In Brevo open "
-            "SMTP & API, then API keys, generate a key that starts with xkeysib-, and "
-            "put only that value in BREVO_API_KEY on Render.",
+            "RESEND_API_KEY is a Brevo SMTP key. Create a Resend key at "
+            "resend.com/api-keys. It starts with re_. Paste only that value on Render.",
             503,
         )
     if brevo.startswith("re_") and not resend.startswith("re_"):
-        return "resend", brevo
-    if resend.startswith("xkeysib-") and not brevo.startswith("xkeysib-"):
-        return "brevo", resend
-    if brevo.startswith("xkeysib-"):
-        return "brevo", brevo
+        resend = brevo
+        brevo = ""
     if resend.startswith("re_"):
         return "resend", resend
-    if brevo:
-        raise MailError(
-            "BREVO_API_KEY is not a Brevo API key. It has to start with xkeysib-. "
-            "In Brevo open SMTP & API, choose API keys, generate a key, and paste only "
-            "that value on Render, with no quotes.",
-            503,
-        )
     if resend:
         raise MailError(
             "RESEND_API_KEY is not a Resend key. It has to start with re_. "
             "Create one at resend.com/api-keys and paste only that value on Render.",
+            503,
+        )
+    if brevo.startswith("xsmtpsib-"):
+        raise MailError(
+            "That is a Brevo SMTP key, and the API will not accept it. Create a Resend "
+            "key at resend.com/api-keys, starting with re_, and put it in RESEND_API_KEY on Render.",
+            503,
+        )
+    if brevo.startswith("xkeysib-"):
+        return "brevo", brevo
+    if brevo:
+        raise MailError(
+            "BREVO_API_KEY is not a Brevo API key. Add RESEND_API_KEY instead. "
+            "Create it at resend.com/api-keys. It starts with re_. Paste only that value.",
             503,
         )
     return "", ""
@@ -264,18 +268,26 @@ def mail_credentials() -> tuple[str, str]:
 
 def _https_failure(provider: str, status: int, detail: str) -> str:
     lowered = detail.lower()
+    if provider == "resend" and (
+        "own email" in lowered or "verify a domain" in lowered or "not verified" in lowered or "sender" in lowered
+    ):
+        return (
+            "Resend will only send from a verified domain. Add the domain at resend.com/domains, "
+            "then set SMTP_FROM to an address on it, such as hello@yourdomain.com. "
+            "onboarding@resend.dev can send only to the email you used to sign up for Resend."
+        )
     if status in {401, 403}:
         if provider == "brevo":
             return (
-                "Brevo refused this API key. Open SMTP & API, then API keys, generate a new key "
-                "that starts with xkeysib-, and replace BREVO_API_KEY on Render. The SMTP key will not work."
+                "Brevo refused this API key. Add RESEND_API_KEY on Render instead. "
+                "Create it at resend.com/api-keys. It starts with re_."
             )
         return (
             "Resend refused this API key. Create a new key at resend.com/api-keys "
             "and replace RESEND_API_KEY on Render."
         )
     if status == 400 and ("not verified" in lowered or "sender" in lowered):
-        return "The sender address is not verified yet. In Brevo or Resend, confirm SMTP_FROM, then try again."
+        return "The sender address is not verified yet. Confirm SMTP_FROM in Resend, then try again."
     return "The mail service could not send the postcard. Check the API key and SMTP_FROM on the Render Environment page."
 
 
@@ -344,9 +356,9 @@ def send_postcard_email(
     settings = smtp_settings()
     if os.environ.get("RENDER", "").lower() == "true" and settings.port in {25, 465, 587}:
         raise MailError(
-            "Render's free plan blocks Gmail's mail ports. Add BREVO_API_KEY or RESEND_API_KEY "
-            "on the Render Environment page, and set SMTP_FROM to the sender address. "
-            "SMTP_PASSWORD is only used when those ports are open.",
+            "Render's free plan blocks Gmail's mail ports. Add RESEND_API_KEY "
+            "on the Render Environment page. The key starts with re_. Set SMTP_FROM "
+            "to an address on a domain you verified at resend.com/domains.",
             503,
         )
     if not settings.ready:
@@ -355,7 +367,7 @@ def send_postcard_email(
             "SMTP is not set up. Open backend/.env and set "
             f"{names}. For Gmail use SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, "
             "your Gmail address for SMTP_USER and SMTP_FROM, and a Google App Password "
-            "for SMTP_PASSWORD. On Render's free plan, set BREVO_API_KEY or RESEND_API_KEY instead.",
+            "for SMTP_PASSWORD. On Render's free plan, set RESEND_API_KEY instead.",
             503,
         )
     message = EmailMessage()
