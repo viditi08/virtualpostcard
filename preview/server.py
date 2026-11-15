@@ -33,7 +33,8 @@ PUBLIC = ROOT / "frontend" / "public"
 DATA = Path(os.environ.get("WHIMSY_DATA", "/tmp/whimsy-post"))
 INDEX = Path(__file__).resolve().parent / "index.html"
 HOST = os.environ.get("WHIMSY_HOST", "0.0.0.0")
-PORT = int(os.environ.get("WHIMSY_PORT", "43123"))
+# Render assigns PORT. WHIMSY_PORT is the local preview port.
+PORT = int(os.environ.get("PORT") or os.environ.get("WHIMSY_PORT") or "43123")
 MAX_UPLOAD = 8 * 1024 * 1024
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 

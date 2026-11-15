@@ -1,0 +1,30 @@
+# Render Blueprint: https://render.com
+# New → Blueprint, connect the Git repo, and point it at this file.
+# Put the Gmail address and App Password in the dashboard when Render asks.
+# Do not commit those values.
+
+services:
+  - type: web
+    name: whimsy-post
+    runtime: python
+    plan: free
+    buildCommand: python3 -m compileall preview backend
+    startCommand: python3 preview/server.py
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_STARTTLS
+        value: "1"
+      - key: SMTP_FROM_NAME
+        value: Postcard Delivery
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false

@@ -149,10 +149,19 @@ def unpack_card(token: str) -> dict | None:
     return json.loads(base64.urlsafe_b64decode(normalized + "=" * (-len(normalized) % 4)))
 
 
+def public_base_url() -> str:
+    """The address strangers can open. Render fills this in when you deploy there."""
+    for key in ("PUBLIC_BASE_URL", "RENDER_EXTERNAL_URL"):
+        value = os.environ.get(key, "").strip().rstrip("/")
+        if _is_public_http_url(value):
+            return value
+    return ""
+
+
 def anyone_url(card: dict) -> str:
     """A link on the public site. Empty while the studio only has a localhost address."""
-    base = os.environ.get("PUBLIC_BASE_URL", "").strip().rstrip("/")
-    if not _is_public_http_url(base):
+    base = public_base_url()
+    if not base:
         return ""
     return f"{base}/#card={pack_card(card)}"
 

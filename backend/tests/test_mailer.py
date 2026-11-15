@@ -95,6 +95,8 @@ class MailerTests(unittest.TestCase):
             "date_str": "2026-11-14",
         }
         self.assertEqual(mailer.anyone_url(card), "")
+        os.environ["RENDER_EXTERNAL_URL"] = "https://whimsy-post.onrender.com"
+        self.assertTrue(mailer.anyone_url(card).startswith("https://whimsy-post.onrender.com/#card="))
         os.environ["PUBLIC_BASE_URL"] = "https://cards.example.com"
         url = mailer.anyone_url(card)
         self.assertTrue(url.startswith("https://cards.example.com/#card="))

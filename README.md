@@ -24,6 +24,19 @@ Sign-in on that preview is a desk account (email and password). The FastAPI
 app below is the full studio: it uses Clerk when both Clerk keys are set in
 `backend/.env`, and the same kind of desk account when they are not.
 
+## Publish on Render
+
+The file `render.yaml` is a [Render](https://render.com) web service. It runs
+`preview/server.py` and listens on the port Render assigns. Render’s public
+address becomes the postcard link, so anyone can open `#card=...`.
+
+1. Push this project to a GitHub repository Render can see.
+2. In the Render dashboard, choose **New → Blueprint** and select that repository.
+3. When Render asks, set `SMTP_USER` and `SMTP_FROM` to the Gmail address, and set `SMTP_PASSWORD` to the Gmail App Password. Leave `PUBLIC_BASE_URL` empty. Render supplies the public address itself.
+4. After the first deploy finishes, open the `onrender.com` address, seal a card, and use **Send the email**.
+
+The free service sleeps when nobody has visited for a while. The next visit wakes it. Desk accounts live on the service disk and can reset when the service is replaced. A link that was already emailed still opens, because the postcard is packed into the link.
+
 ## Running locally
 
 MongoDB must be listening on `localhost:27017`. Then, from the repo root:
