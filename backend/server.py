@@ -1,7 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
@@ -114,12 +114,18 @@ def _mount_frontend() -> None:
         logger.info("frontend dist missing at %s; serving the API only", FRONTEND_DIST)
         return
 
-    @app.get("/{full_path:path}", include_in_schema=False)
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
     async def frontend(full_path: str):
         found = _frontend_file(full_path)
         if found is not None:
             return FileResponse(found)
         return FileResponse(index)
+
+
+@app.head("/", include_in_schema=False)
+async def head_root():
+    # Render's health check uses HEAD. A GET-only page answers 405 and the deploy restarts.
+    return Response(status_code=200)
 
 
 _mount_frontend()
