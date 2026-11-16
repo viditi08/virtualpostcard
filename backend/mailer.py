@@ -242,8 +242,8 @@ def postcard_html(link: str, recipient_name: str, sender_name: str, note: str = 
     if image:
         src = html.escape(image, quote=True)
         inner = (
-            f'<img src="{src}" alt="A sealed envelope" width="480" '
-            'style="display:block;width:100%;max-width:480px;height:auto;border:0;border-radius:8px;">'
+            f'<img src="{src}" alt="A sealed envelope" width="80" height="60" '
+            'style="display:block;width:80px;height:60px;border:0;border-radius:8px;">'
         )
         if public:
             href = html.escape(public, quote=True)
