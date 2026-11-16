@@ -82,9 +82,6 @@ export function ShareDialog({ open, onOpenChange, cardId, shareId, recipient, me
             onChange={(e) => setTo(e.target.value)}
             className="h-11"
           />
-          <p className="text-sm text-ink-muted">
-            Send the email delivers the letter from Postcard Delivery, the mailbox in <span className="font-mono text-xs">backend/.env</span>. An address that only works on this computer is left out.
-          </p>
           {mailError ? (
             <p data-testid="share-email-error" className="text-sm text-terracotta" role="alert">{mailError}</p>
           ) : null}
