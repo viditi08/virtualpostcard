@@ -256,15 +256,12 @@ def postcard_html(link: str, recipient_name: str, sender_name: str, note: str = 
     if public:
         href = html.escape(public, quote=True)
         button = (
-            '<tr><td align="center" style="padding:4px 32px 8px;">'
+            '<tr><td align="center" style="padding:4px 32px 28px;">'
             '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">'
             '<tr><td align="center" bgcolor="#A34832" style="border-radius:999px;">'
             f'<a href="{href}" target="_blank" style="display:inline-block;padding:12px 22px;'
             'font-family:Georgia,serif;font-size:16px;line-height:20px;color:#FFFDF8;text-decoration:none;">'
             "Open the envelope</a></td></tr></table></td></tr>"
-            '<tr><td align="center" style="padding:8px 32px 28px;font-family:Georgia,serif;font-size:16px;line-height:24px;">'
-            f'<a href="{href}" target="_blank" style="color:#A34832;text-decoration:underline;">Open your postcard</a>'
-            "</td></tr>"
         )
     note_row = ""
     if written:
