@@ -177,11 +177,13 @@ def anyone_url(card: dict) -> str:
 
 
 def public_postcard_url(link: str, share_id: str = "") -> str:
-    """A link the recipient can open. A localhost address is left out."""
-    del share_id
-    candidate = link.strip()
+    """A link the recipient can open. A localhost address is replaced with the public site."""
+    candidate = (link or "").strip()
     if candidate and not any(char in candidate for char in "\r\n") and len(candidate) <= 8000 and _is_public_http_url(candidate):
         return candidate
+    base = public_base_url() or "https://virtualpostcard.onrender.com"
+    if re.fullmatch(r"[A-Za-z0-9_-]{4,80}", share_id or ""):
+        return f"{base}/p/{share_id}"
     return ""
 
 
@@ -209,7 +211,7 @@ def postcard_message(link: str, recipient_name: str, sender_name: str, note: str
         parts.append(written)
     public = public_postcard_url(link, share_id)
     if public:
-        parts.append(f"Open the envelope here:\n{public}")
+        parts.append(f"Open your postcard:\n{public}")
     if sender:
         parts.append(f"— {sender}")
     return postcard_subject(recipient_name, sender_name), "\n\n".join(parts) + "\n"
@@ -253,11 +255,16 @@ def postcard_html(link: str, recipient_name: str, sender_name: str, note: str = 
     button = ""
     if public:
         href = html.escape(public, quote=True)
+        shown = html.escape(public)
         button = (
-            '<tr><td align="center" style="padding:4px 32px 28px;">'
+            '<tr><td align="center" style="padding:4px 32px 8px;">'
             f'<a href="{href}" style="display:inline-block;background:#A34832;color:#FFFDF8;'
             'font-family:Georgia,serif;font-size:16px;text-decoration:none;padding:12px 22px;border-radius:999px;">'
             "Open the envelope</a></td></tr>"
+            '<tr><td align="center" style="padding:0 32px 28px;font-family:Georgia,serif;font-size:14px;line-height:1.5;">'
+            f'<a href="{href}" style="color:#A34832;text-decoration:underline;">Open your postcard</a>'
+            f'<br><a href="{href}" style="color:#8A7568;font-size:13px;word-break:break-all;">{shown}</a>'
+            "</td></tr>"
         )
     note_row = ""
     if written:
