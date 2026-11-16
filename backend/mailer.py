@@ -17,6 +17,7 @@ App passwords, and put that 16-character value in SMTP_PASSWORD.
 from __future__ import annotations
 
 import base64
+import html
 import json
 import os
 import re
@@ -184,6 +185,20 @@ def public_postcard_url(link: str, share_id: str = "") -> str:
     return ""
 
 
+def postcard_subject(recipient_name: str, sender_name: str) -> str:
+    who = _clean_line(recipient_name, 80)
+    sender = _clean_line(sender_name, 80)
+    if sender and who:
+        subject = f"{sender} sealed an envelope for {who}"
+    elif sender:
+        subject = f"{sender} sealed an envelope for you"
+    elif who:
+        subject = f"A sealed envelope for {who}"
+    else:
+        subject = "A sealed envelope for you"
+    return _clean_line(subject, 120)
+
+
 def postcard_message(link: str, recipient_name: str, sender_name: str, note: str = "", share_id: str = "") -> tuple[str, str]:
     who = _clean_line(recipient_name, 80)
     sender = _clean_line(sender_name, 80)
@@ -196,8 +211,85 @@ def postcard_message(link: str, recipient_name: str, sender_name: str, note: str
     if public:
         parts.append(f"Open the envelope here:\n{public}")
     if sender:
-        parts.append(f"\u2014 {sender}")
-    return "You've got mail", "\n\n".join(parts) + "\n"
+        parts.append(f"— {sender}")
+    return postcard_subject(recipient_name, sender_name), "\n\n".join(parts) + "\n"
+
+
+def envelope_image_url(link: str) -> str:
+    """The sealed-envelope picture, hosted on the public site."""
+    base = public_base_url()
+    if not base:
+        public = public_postcard_url(link)
+        if public:
+            parsed = urlparse(public)
+            base = f"{parsed.scheme}://{parsed.netloc}"
+    if not base:
+        base = "https://virtualpostcard.onrender.com"
+    return f"{base}/sealed-envelope.jpg"
+
+
+def postcard_html(link: str, recipient_name: str, sender_name: str, note: str = "", share_id: str = "") -> str:
+    """A short letter with the sealed envelope in the middle."""
+    who = html.escape(_clean_line(recipient_name, 80))
+    sender = html.escape(_clean_line(sender_name, 80))
+    written = html.escape(note.replace("\r", "").strip()[:600]).replace("\n", "<br>")
+    public = public_postcard_url(link, share_id)
+    image = envelope_image_url(public or link)
+    greeting = f"A little postcard for you, {who}." if who else "A little postcard for you."
+    picture = ""
+    if image:
+        src = html.escape(image, quote=True)
+        inner = (
+            f'<img src="{src}" alt="A sealed envelope" width="480" '
+            'style="display:block;width:100%;max-width:480px;height:auto;border:0;border-radius:8px;">'
+        )
+        if public:
+            href = html.escape(public, quote=True)
+            inner = f'<a href="{href}" style="text-decoration:none;">{inner}</a>'
+        picture = (
+            '<tr><td align="center" style="padding:8px 32px 20px;">'
+            f"{inner}</td></tr>"
+        )
+    button = ""
+    if public:
+        href = html.escape(public, quote=True)
+        button = (
+            '<tr><td align="center" style="padding:4px 32px 28px;">'
+            f'<a href="{href}" style="display:inline-block;background:#A34832;color:#FFFDF8;'
+            'font-family:Georgia,serif;font-size:16px;text-decoration:none;padding:12px 22px;border-radius:999px;">'
+            "Open the envelope</a></td></tr>"
+        )
+    note_row = ""
+    if written:
+        note_row = (
+            '<tr><td style="padding:0 32px 18px;font-family:Georgia,serif;font-size:17px;'
+            f'line-height:1.5;color:#2C1810;">{written}</td></tr>'
+        )
+    signoff = ""
+    if sender:
+        signoff = (
+            '<tr><td style="padding:0 32px 28px;font-family:Georgia,serif;font-size:16px;'
+            f'font-style:italic;color:#2C1810;">— {sender}</td></tr>'
+        )
+    return f"""<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#F3EBE0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3EBE0;">
+<tr><td align="center" style="padding:28px 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFDF8;border-radius:16px;">
+<tr><td style="padding:28px 32px 8px;font-family:Georgia,serif;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#A34832;">Special delivery</td></tr>
+<tr><td style="padding:0 32px 16px;font-family:Georgia,serif;font-size:28px;line-height:1.25;color:#2C1810;">{greeting}</td></tr>
+{note_row}
+{picture}
+{button}
+{signoff}
+<tr><td style="padding:0 32px 24px;font-family:Georgia,serif;font-size:12px;color:#8A7568;">Postcard Delivery</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>
+"""
 
 
 def from_header(settings: SmtpSettings) -> str:
@@ -312,23 +404,28 @@ def _post_json(provider: str, url: str, headers: dict[str, str], payload: dict) 
         raise MailError("The mail service could not be reached. Try again in a moment.") from exc
 
 
-def send_https_email(provider: str, key: str, to: str, subject: str, body: str) -> None:
+def send_https_email(provider: str, key: str, to: str, subject: str, body: str, html_body: str = "") -> None:
     address = sender_address()
     if not address:
         raise MailError("Set SMTP_FROM to the address the postcard should come from.", 503)
     name = _clean_line(os.environ.get("SMTP_FROM_NAME", "Postcard Delivery"), 80) or "Postcard Delivery"
     if provider == "brevo":
-        _post_json(
-            provider,
-            "https://api.brevo.com/v3/smtp/email",
-            {"api-key": key},
-            {
-                "sender": {"name": name, "email": address},
-                "to": [{"email": to}],
-                "subject": subject,
-                "textContent": body,
-            },
-        )
+        payload = {
+            "sender": {"name": name, "email": address},
+            "to": [{"email": to}],
+            "subject": subject,
+            "textContent": body,
+        }
+        if html_body:
+            payload["htmlContent"] = html_body
+            # Brevo cannot place this picture inside the letter with a cid: link.
+            # The same photo is attached so it still shows when a mailbox hides remote pictures.
+            from envelope_image import jpeg_bytes
+            payload["attachment"] = [{
+                "name": "sealed-envelope.jpg",
+                "content": base64.b64encode(jpeg_bytes()).decode("ascii"),
+            }]
+        _post_json(provider, "https://api.brevo.com/v3/smtp/email", {"api-key": key}, payload)
         return
     _post_json(
         provider,
@@ -339,6 +436,7 @@ def send_https_email(provider: str, key: str, to: str, subject: str, body: str) 
             "to": [to],
             "subject": subject,
             "text": body,
+            **({"html": html_body} if html_body else {}),
         },
     )
 
@@ -353,9 +451,10 @@ def send_postcard_email(
 ) -> str:
     recipient = normalize_recipient(to)
     subject, body = postcard_message(link, recipient_name, sender_name, note, share_id)
+    html_body = postcard_html(link, recipient_name, sender_name, note, share_id)
     provider, key = mail_credentials()
     if provider:
-        send_https_email(provider, key, recipient, subject, body)
+        send_https_email(provider, key, recipient, subject, body, html_body)
         return recipient
     settings = smtp_settings()
     if os.environ.get("RENDER", "").lower() == "true" and settings.port in {25, 465, 587}:
@@ -379,6 +478,7 @@ def send_postcard_email(
     message["From"] = from_header(settings)
     message["To"] = recipient
     message.set_content(body)
+    message.add_alternative(html_body, subtype="html")
     try:
         if settings.port == 465 or not settings.starttls:
             with smtplib.SMTP_SSL(settings.host, settings.port, timeout=20, context=ssl.create_default_context()) as smtp:

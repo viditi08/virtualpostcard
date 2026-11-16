@@ -94,6 +94,17 @@ logger = logging.getLogger(__name__)
 # site and /api. Leave this off when frontend/dist has not been built yet.
 FRONTEND_DIST = (ROOT_DIR.parent / "frontend" / "dist").resolve()
 
+from envelope_image import jpeg_bytes  # noqa: E402
+
+
+@app.get("/sealed-envelope.jpg", include_in_schema=False)
+def sealed_envelope_image():
+    return Response(
+        content=jpeg_bytes(),
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
 
 def _frontend_file(full_path: str) -> Path | None:
     if not full_path:
